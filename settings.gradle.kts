@@ -1,1 +1,1 @@
-rootProject.name = "KN-CLang"
+rootProject.name = "kn-clang"

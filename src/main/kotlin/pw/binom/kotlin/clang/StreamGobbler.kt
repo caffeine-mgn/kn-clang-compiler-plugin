@@ -13,7 +13,7 @@ class StreamGobbler constructor(var stream: InputStream) : Thread() {
         try {
             val isr = InputStreamReader(stream)
             val br = BufferedReader(isr)
-            var line: String? = null
+            var line: String?
             while (br.readLine().also { line = it } != null)
                 out.append("$line\n")
         } catch (ioe: IOException) {
