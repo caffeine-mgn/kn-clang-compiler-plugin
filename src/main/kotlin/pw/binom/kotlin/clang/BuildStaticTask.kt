@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
-class BuildStaticTask: DefaultTask() {
+open class BuildStaticTask: DefaultTask() {
     private class Compile(val source: File, val objectFile: File, val args: List<String>?)
     @Input
     var target: KonanTarget = HostManager.host
