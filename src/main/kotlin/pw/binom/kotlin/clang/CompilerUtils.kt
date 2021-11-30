@@ -7,7 +7,7 @@ import java.io.File
 private val konanUserDir = File(System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan")
 val konanDeps = konanUserDir.resolve("dependencies")
 val toolChainFolderName = when {
-    HostManager.hostIsLinux -> "clang-llvm-8.0.0-linux-x86-64"
+    HostManager.hostIsLinux -> "llvm-11.1.0-linux-x64-essentials"
     HostManager.hostIsMac -> "clang-llvm-apple-8.0.0-darwin-macos"
     HostManager.hostIsMingw -> "llvm-11.1.0-windows-x64-essentials"
     else -> error("Unknown host OS")
