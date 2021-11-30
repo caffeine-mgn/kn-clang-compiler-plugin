@@ -13,8 +13,9 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
-open class BuildStaticTask: DefaultTask() {
+open class BuildStaticTask : DefaultTask() {
     private class Compile(val source: File, val objectFile: File, val args: List<String>?)
+
     @Input
     var target: KonanTarget = HostManager.host
 
@@ -37,7 +38,7 @@ open class BuildStaticTask: DefaultTask() {
     var debugBuild: Boolean = false
 
     @Input
-    var optimizationLevel: Int = 3
+    var optimizationLevel: Int = 2
 
     @InputFiles
     val inputSourceFiles = ArrayList<File>()
@@ -46,7 +47,7 @@ open class BuildStaticTask: DefaultTask() {
     val outputObjectFiles = ArrayList<File>()
 
     private val nativeObjDir by lazy {
-        project.buildDir.resolve("native").resolve("obj")
+        project.buildDir.resolve("native").resolve("obj").resolve(target.name)
     }
 
     fun compileArgs(vararg args: String) {
@@ -59,13 +60,15 @@ open class BuildStaticTask: DefaultTask() {
 
     @JvmOverloads
     fun compileDir(sourceDir: File, objectDir: File, args: List<String>? = null, filter: ((File) -> Boolean)? = null) {
+        logger
         sourceDir.list()?.forEach {
             val f = sourceDir.resolve(it)
             if (f.isFile && (f.extension.toLowerCase() == "c" || f.extension.toLowerCase() == "cpp")) {
                 if (filter == null || filter(f)) {
                     compileFile(
                         source = f,
-                        args = args
+                        args = args,
+                        objectDir = objectDir,
                     )
                 }
             }
@@ -82,9 +85,9 @@ open class BuildStaticTask: DefaultTask() {
     }
 
     @JvmOverloads
-    fun compileFile(source: File, args: List<String>? = null) {
+    fun compileFile(source: File, objectDir: File, args: List<String>? = null) {
         val outFile =
-            nativeObjDir.resolve("${source.nameWithoutExtension}_${source.absolutePath.hashCode() + target.hashCode()}.o")
+            objectDir.resolve("${source.nameWithoutExtension}.o")
         compiles.add(
             Compile(
                 source = source,
@@ -118,21 +121,27 @@ open class BuildStaticTask: DefaultTask() {
         } else {
             ':'
         }
-        env["PATH"] = "$llvmBinFolder$osPathSeparator${System.getenv("PATH")}"
+        env["PATH"] = "$HOST_LLVM_BIN_FOLDER$osPathSeparator${System.getenv("PATH")}"
 
+        Konan.checkSysrootInstalled(target)
+        val targetInfo = targetInfoMap.getValue(target)
         fun runCompile(compile: Compile): CompileResult =
             run {
-                val targetInfo = targetInfoMap.getValue(target)
-
                 val args = ArrayList<String>()
-                args.add(llvmBinFolder.resolve("clang").absolutePath.executable)
-//            args.add(llvmBinFolder.resolve("gcc").absolutePath.executable)
-                args.add("-c")
+                args.add(targetInfo.llvmDir.resolve("clang").executable.absolutePath)
                 args.add("-O$optimizationLevel")
+                args.add("-fexceptions")
+                args.add("-c")
+                args.add("-fno-stack-protector")
                 args.add("-Wall")
+                if (targetInfo.toolchain != null) {
+                    args.add("--gcc-toolchain=${targetInfo.toolchain}")
+                }
                 args.add("--target=${targetInfo.targetName}")
-                args.add("--sysroot=${targetInfo.sysRoot}")
-                args.addAll(targetInfo.clangArgs)
+                targetInfo.sysRoot.forEach {
+                    args.add("--sysroot=$it")
+                }
+                args.addAll(targetInfo.clangCompileArgs)
                 args.addAll(this.compileArgs)
                 if (compile.args != null) {
                     args.addAll(compile.args)
@@ -147,8 +156,6 @@ open class BuildStaticTask: DefaultTask() {
                     args
                 )
                 builder.environment().putAll(env)
-//                    builder.redirectError(builder.redirectInput())
-//                    builder.inheritIO()
                 val process = builder.start()
 
                 val stdout = StreamGobbler(process.inputStream)
@@ -159,7 +166,7 @@ open class BuildStaticTask: DefaultTask() {
                 stdout.join()
                 stdin.join()
                 if (process.exitValue() == 0) {
-                    logger.lifecycle("Compile ${compile.source}: OK, ${targetInfo.targetName}")
+                    logger.lifecycle("Compile ${compile.source}: OK")
                 }
                 CompileResult(
                     code = process.exitValue(),
@@ -208,6 +215,7 @@ open class BuildStaticTask: DefaultTask() {
 
         results.forEach {
             if (it.code != 0) {
+                println("Compile ${it.source}: FAIL")
                 throw GradleScriptException(
                     "Can't build \"${it.source}\".", RuntimeException(
                         "Output:\n${it.result}"
@@ -215,21 +223,26 @@ open class BuildStaticTask: DefaultTask() {
                 )
             }
         }
-
+        val ar = targetInfo.llvmDir.resolve("llvm-ar").executable
+        if (!ar.isFile) {
+            throw RuntimeException("File $ar not found")
+        }
         val args = ArrayList<String>()
-        args.add(llvmBinFolder.resolve("llvm-ar").absolutePath.executable)
+        args.add(ar.absolutePath)
         args.add("rc")
         args.add(staticFile!!.absolutePath)
         compiles.forEach {
-            args.add(it.objectFile.name)
+            args.add(it.objectFile.absolutePath)
         }
 
         val builder = ProcessBuilder(
             args
         )
-        builder.directory(nativeObjDir)
-        builder.environment().put("PATH", "$llvmBinFolder;${System.getenv("PATH")}")
+        builder.directory(staticFile!!.parentFile)
+        builder.environment().put("PATH", "$HOST_LLVM_BIN_FOLDER;${System.getenv("PATH")}")
         val process = builder.start()
+        StreamGobblerAppendable(process.inputStream, System.out, false).start()
+        StreamGobblerAppendable(process.errorStream, System.err, false).start()
         process.waitFor()
         if (process.exitValue() != 0) {
             throw GradleScriptException(
@@ -239,9 +252,9 @@ open class BuildStaticTask: DefaultTask() {
         }
     }
 
-    private val String.executable
+    private val File.executable
         get() = when (HostManager.host.family) {
-            Family.MINGW -> "$this.exe"
+            Family.MINGW -> File("$this.exe")
             else -> this
         }
 }
