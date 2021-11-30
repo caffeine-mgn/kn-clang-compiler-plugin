@@ -46,7 +46,7 @@ private val ANDROID_SYSROOT_NAME = when {
 
 val PREBUILD_KONAN_DIR_NAME = when {
     HostManager.hostIsLinux -> "kotlin-native-prebuilt-linux-x86_64-1.6.0"
-    HostManager.hostIsMac -> TODO()
+    HostManager.hostIsMac -> "kotlin-native-prebuilt-macos-x86_64-1.6.0"
     HostManager.hostIsMingw -> "kotlin-native-prebuilt-windows-x86_64-1.6.0"
     else -> error("Unknown host OS")
 }
