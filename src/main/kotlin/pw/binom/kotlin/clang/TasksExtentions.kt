@@ -11,6 +11,9 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 val KotlinNativeLink.targetKonan
     get() = binary.target.konanTarget
 
+val KotlinNativeTarget.compileTaskName
+    get() = "compileKotlin${name.capitalize()}"
+
 fun KotlinMultiplatformExtension.eachNative(func: KotlinNativeTarget.() -> Unit) {
     this.targets.forEach {
         if (it is KotlinNativeTarget) {

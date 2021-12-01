@@ -21,6 +21,9 @@ abstract class BuildStaticTask : DefaultTask() {
 
     @get:Input
     abstract val target: Property<KonanTarget>
+    fun target(target: KonanTarget) {
+        this.target.set(target)
+    }
 
 
     private var compiles = ArrayList<Compile>()
@@ -46,23 +49,36 @@ abstract class BuildStaticTask : DefaultTask() {
     abstract val staticFile: RegularFileProperty
 
 
-    @Input
-    var debugBuild: Boolean = false
+    @get:Input
+    abstract val debugEnabled: Property<Boolean>
 
-    @Input
-    var optimizationLevel: Int = 2
+    fun debugEnabled(debugEnabled: Boolean) {
+        this.debugEnabled.set(debugEnabled)
+    }
 
-//    @InputFiles
-//    val inputSourceFiles = ArrayList<File>()
+    @get:Input
+    abstract val optimizationLevel: Property<Int>
 
-    //    @OutputFiles
-//    val outputObjectFiles = ArrayList<File>()
+
+    fun optimizationLevel(level: Int) {
+        this.optimizationLevel.set(level)
+    }
+
+
     private val selectedTarget
         get() = target.getOrElse(HostManager.host)
 
-    @get:Optional
-    @get:InputDirectory
+    @get:OutputDirectory
     abstract val objectDirectory: RegularFileProperty
+
+    fun objectDirectory(file:File){
+        this.objectDirectory.set(file)
+    }
+
+    fun objectDirectory(file:Any?){
+        val file = project.fileAnyWay(file)?:throw IllegalArgumentException("Can't cast $file to File")
+        objectDirectory(file)
+    }
 
     private val nativeObjDir by lazy {
         if (objectDirectory.isPresent)
@@ -80,16 +96,21 @@ abstract class BuildStaticTask : DefaultTask() {
         this.includes.from(*includes)
     }
 
-    fun include(vararg includes: String) {
+    fun include(vararg includes: Any) {
         include(
-            *includes.map {
-                project.file(it)
+            *includes.mapNotNull {
+                project.fileAnyWay(it)
             }.toTypedArray()
         )
     }
 
     @JvmOverloads
-    fun compileDir(sourceDir: File, objectDir: File, args: List<String>? = null, filter: ((File) -> Boolean)? = null) {
+    fun compileDir(
+        sourceDir: File,
+        objectDir: File = nativeObjDir,
+        args: List<String>? = null,
+        filter: ((File) -> Boolean)? = null
+    ) {
         sourceDir.list()?.forEach {
             val f = sourceDir.resolve(it)
             if (f.isFile && (f.extension.toLowerCase() == "c" || f.extension.toLowerCase() == "cpp")) {
@@ -140,8 +161,9 @@ abstract class BuildStaticTask : DefaultTask() {
         if (!staticFile.isPresent) {
             throw InvalidUserDataException("Static output file not set")
         }
-        if (optimizationLevel < 0 || optimizationLevel > 3)
+        if (optimizationLevel.get() < 0 || optimizationLevel.get() > 3) {
             throw InvalidUserDataException("Invalid Optimization Level")
+        }
         if (!HostManager().isEnabled(selectedTarget)) {
             throw StopActionException("Target ${selectedTarget.name} not supported")
         }
@@ -163,8 +185,11 @@ abstract class BuildStaticTask : DefaultTask() {
             run {
                 val args = ArrayList<String>()
                 args.add(targetInfo.llvmDir.resolve("clang").executable.absolutePath)
-                args.add("-O$optimizationLevel")
+                args.add("-O${optimizationLevel.get()}")
                 args.add("-fexceptions")
+                if (debugEnabled.get()) {
+                    args.add("-g")
+                }
                 args.add("-c")
                 args.add("-fno-stack-protector")
                 args.add("-Wall")
@@ -186,7 +211,6 @@ abstract class BuildStaticTask : DefaultTask() {
                 includes.forEach {
                     args.add("-I${it.absolutePath}")
                 }
-                println("Exec: ${args.map { "'$it'" }.joinToString(" ")}")
                 val builder = ProcessBuilder(
                     args
                 )
