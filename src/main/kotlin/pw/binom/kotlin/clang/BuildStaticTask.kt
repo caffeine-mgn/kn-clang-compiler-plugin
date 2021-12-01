@@ -3,6 +3,9 @@ package pw.binom.kotlin.clang
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleScriptException
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -13,26 +16,35 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
-open class BuildStaticTask : DefaultTask() {
-    private class Compile(val source: File, val objectFile: File, val args: List<String>?)
+abstract class BuildStaticTask : DefaultTask() {
+    class Compile(val source: File, val objectFile: File, val args: List<String>?)
 
-    @Input
-    var target: KonanTarget = HostManager.host
+    @get:Input
+    abstract val target: Property<KonanTarget>
+
 
     private var compiles = ArrayList<Compile>()
-    private val includes = ArrayList<File>()
+
+    @get:Internal
+    val sources: List<Compile>
+        get() = compiles
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val includes: ConfigurableFileCollection
 
     /**
      * Allow to use multithreding
      */
-    @Input
+    @get:Input
     var multiThread = true
 
-    @Input
+    @get:Input
     val compileArgs = ArrayList<String>()
 
-    @OutputFile
-    var staticFile: File? = null
+    @get:OutputFile
+    abstract val staticFile: RegularFileProperty
+
 
     @Input
     var debugBuild: Boolean = false
@@ -40,14 +52,24 @@ open class BuildStaticTask : DefaultTask() {
     @Input
     var optimizationLevel: Int = 2
 
-    @InputFiles
-    val inputSourceFiles = ArrayList<File>()
+//    @InputFiles
+//    val inputSourceFiles = ArrayList<File>()
 
-    @OutputFiles
-    val outputObjectFiles = ArrayList<File>()
+    //    @OutputFiles
+//    val outputObjectFiles = ArrayList<File>()
+    private val selectedTarget
+        get() = target.getOrElse(HostManager.host)
+
+    @get:Optional
+    @get:InputDirectory
+    abstract val objectDirectory: RegularFileProperty
 
     private val nativeObjDir by lazy {
-        project.buildDir.resolve("native").resolve("obj").resolve(target.name)
+        if (objectDirectory.isPresent)
+            objectDirectory.asFile.get()
+        else {
+            project.buildDir.resolve("native").resolve(name).resolve("obj").resolve(selectedTarget.name)
+        }
     }
 
     fun compileArgs(vararg args: String) {
@@ -55,12 +77,19 @@ open class BuildStaticTask : DefaultTask() {
     }
 
     fun include(vararg includes: File) {
-        this.includes.addAll(includes)
+        this.includes.from(*includes)
+    }
+
+    fun include(vararg includes: String) {
+        include(
+            *includes.map {
+                project.file(it)
+            }.toTypedArray()
+        )
     }
 
     @JvmOverloads
     fun compileDir(sourceDir: File, objectDir: File, args: List<String>? = null, filter: ((File) -> Boolean)? = null) {
-        logger
         sourceDir.list()?.forEach {
             val f = sourceDir.resolve(it)
             if (f.isFile && (f.extension.toLowerCase() == "c" || f.extension.toLowerCase() == "cpp")) {
@@ -85,7 +114,8 @@ open class BuildStaticTask : DefaultTask() {
     }
 
     @JvmOverloads
-    fun compileFile(source: File, objectDir: File, args: List<String>? = null) {
+    fun compileFile(source: File, objectDir: File? = null, args: List<String>? = null) {
+        val objectDir = objectDir ?: nativeObjDir
         val outFile =
             objectDir.resolve("${source.nameWithoutExtension}.o")
         compiles.add(
@@ -95,24 +125,28 @@ open class BuildStaticTask : DefaultTask() {
                 args = args
             )
         )
-        inputSourceFiles.add(source)
-        outputObjectFiles.add(outFile)
+        inputs.file(source)
+        outputs.file(outFile)
     }
 
     private class CompileResult(val source: File, val code: Int, val result: String)
 
     @TaskAction
     fun execute() {
-        if (staticFile == null) {
+        if (!TargetSupport.isTargetSupportOnHost(target.get())) {
+            logger.warn("Compile target ${target.get()} not supported on host ${HostManager.host.name}")
+            return
+        }
+        if (!staticFile.isPresent) {
             throw InvalidUserDataException("Static output file not set")
         }
         if (optimizationLevel < 0 || optimizationLevel > 3)
             throw InvalidUserDataException("Invalid Optimization Level")
-        if (!HostManager().isEnabled(target)) {
-            throw StopActionException("Target ${target.name} not supported")
+        if (!HostManager().isEnabled(selectedTarget)) {
+            throw StopActionException("Target ${selectedTarget.name} not supported")
         }
         val env = HashMap<String, String>()
-        if (HostManager.hostIsMac && target == KonanTarget.MACOS_X64) {
+        if (HostManager.hostIsMac && selectedTarget == KonanTarget.MACOS_X64) {
             env["CPATH"] =
                 "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include"
         }
@@ -123,8 +157,8 @@ open class BuildStaticTask : DefaultTask() {
         }
         env["PATH"] = "$HOST_LLVM_BIN_FOLDER$osPathSeparator${System.getenv("PATH")}"
 
-        Konan.checkSysrootInstalled(target)
-        val targetInfo = targetInfoMap.getValue(target)
+        Konan.checkSysrootInstalled(selectedTarget)
+        val targetInfo = targetInfoMap.getValue(selectedTarget)
         fun runCompile(compile: Compile): CompileResult =
             run {
                 val args = ArrayList<String>()
@@ -152,6 +186,7 @@ open class BuildStaticTask : DefaultTask() {
                 includes.forEach {
                     args.add("-I${it.absolutePath}")
                 }
+                println("Exec: ${args.map { "'$it'" }.joinToString(" ")}")
                 val builder = ProcessBuilder(
                     args
                 )
@@ -230,7 +265,7 @@ open class BuildStaticTask : DefaultTask() {
         val args = ArrayList<String>()
         args.add(ar.absolutePath)
         args.add("rc")
-        args.add(staticFile!!.absolutePath)
+        args.add(staticFile.asFile.get().absolutePath)
         compiles.forEach {
             args.add(it.objectFile.absolutePath)
         }
@@ -238,7 +273,7 @@ open class BuildStaticTask : DefaultTask() {
         val builder = ProcessBuilder(
             args
         )
-        builder.directory(staticFile!!.parentFile)
+        builder.directory(staticFile.asFile.get().parentFile)
         builder.environment().put("PATH", "$HOST_LLVM_BIN_FOLDER;${System.getenv("PATH")}")
         val process = builder.start()
         StreamGobblerAppendable(process.inputStream, System.out, false).start()

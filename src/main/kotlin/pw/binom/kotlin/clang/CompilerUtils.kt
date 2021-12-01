@@ -22,6 +22,8 @@ val ANDROID_WINDOWS_TOOLCHAIN = Toolchain(
     ar = KONAN_USER_DIR.resolve("target-toolchain-2-windows-android_ndk/bin/llvm-ar.exe"),
 )
 
+private val  LINUX_X64_SYSROOT="x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2"
+
 val KONAN_DEPS = KONAN_USER_DIR.resolve("dependencies")
 val HOST_KONAN_LLVM_DIR_NAME = when {
     HostManager.hostIsLinux -> "llvm-11.1.0-linux-x64-essentials"
@@ -31,18 +33,14 @@ val HOST_KONAN_LLVM_DIR_NAME = when {
 }
 
 private val ANDROID_KONAN_LLVM_DIR_NAME = when {
-    HostManager.hostIsLinux -> TODO()
+    HostManager.hostIsLinux -> "target-toolchain-2-linux-android_ndk"
     HostManager.hostIsMac -> TODO()
     HostManager.hostIsMingw -> "target-toolchain-2-windows-android_ndk"
     else -> error("Unknown host OS")
 }
 
-private val ANDROID_SYSROOT_NAME = when {
-    HostManager.hostIsLinux -> TODO()
-    HostManager.hostIsMac -> TODO()
-    HostManager.hostIsMingw -> KONAN_DEPS.resolve(ANDROID_KONAN_LLVM_DIR_NAME).resolve("sysroot")
-    else -> error("Unknown host OS")
-}
+private val ANDROID_SYSROOT_DIR_BASE_1 = KONAN_DEPS.resolve(ANDROID_KONAN_LLVM_DIR_NAME).resolve("sysroot")
+private val ANDROID_SYSROOT_DIR_TARGETS_2 = KONAN_DEPS.resolve("target-sysroot-1-android_ndk").resolve("android-21")
 
 val PREBUILD_KONAN_DIR_NAME = when {
     HostManager.hostIsLinux -> "kotlin-native-prebuilt-linux-x86_64-1.6.0"
@@ -50,7 +48,7 @@ val PREBUILD_KONAN_DIR_NAME = when {
     HostManager.hostIsMingw -> "kotlin-native-prebuilt-windows-x86_64-1.6.0"
     else -> error("Unknown host OS")
 }
-private val androidSysRootParent = KONAN_DEPS.resolve("target-sysroot-1-android_ndk").resolve("android-21")
+
 val HOST_LLVM_BIN_FOLDER = KONAN_DEPS.resolve("$HOST_KONAN_LLVM_DIR_NAME/bin")
 val ANDROID_LLVM_BIN_FOLDER = KONAN_DEPS.resolve("$ANDROID_KONAN_LLVM_DIR_NAME/bin")
 
@@ -65,10 +63,10 @@ data class TargetInfo(
 val targetInfoMap = mapOf(
     KonanTarget.LINUX_X64 to TargetInfo(
         targetName = "x86_64-unknown-linux-gnu",
-        sysRoot = listOf(KONAN_DEPS.resolve("x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2/x86_64-unknown-linux-gnu/sysroot")),
+        sysRoot = listOf(KONAN_DEPS.resolve("$LINUX_X64_SYSROOT/x86_64-unknown-linux-gnu/sysroot")),
         llvmDir = HOST_LLVM_BIN_FOLDER,
         clangCompileArgs = listOf("-fPIC"),
-        toolchain = KONAN_DEPS.resolve("x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2")
+        toolchain = KONAN_DEPS.resolve(LINUX_X64_SYSROOT)
 //                1.4.32 - sysRoot = konanDeps.resolve("target-gcc-toolchain-3-linux-x86-64/x86_64-unknown-linux-gnu/sysroot")
     ),
     KonanTarget.MACOS_X64 to TargetInfo(
@@ -109,22 +107,22 @@ val targetInfoMap = mapOf(
     ),
     KonanTarget.ANDROID_ARM32 to TargetInfo(
         targetName = "arm-linux-androideabi",
-        sysRoot = listOf(androidSysRootParent.resolve("arch-arm"), ANDROID_SYSROOT_NAME),
+        sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-arm"), ANDROID_SYSROOT_DIR_BASE_1),
         llvmDir = ANDROID_LLVM_BIN_FOLDER,
     ),
     KonanTarget.ANDROID_ARM64 to TargetInfo(
         targetName = "aarch64-linux-android",
-        sysRoot = listOf(androidSysRootParent.resolve("arch-arm64"), ANDROID_SYSROOT_NAME),
+        sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-arm64"), ANDROID_SYSROOT_DIR_BASE_1),
         llvmDir = ANDROID_LLVM_BIN_FOLDER,
     ),
     KonanTarget.ANDROID_X86 to TargetInfo(
         targetName = "i686-linux-android",
-        sysRoot = listOf(androidSysRootParent.resolve("arch-x86"), ANDROID_SYSROOT_NAME),
+        sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-x86"), ANDROID_SYSROOT_DIR_BASE_1),
         llvmDir = ANDROID_LLVM_BIN_FOLDER,
     ),
     KonanTarget.ANDROID_X64 to TargetInfo(
         targetName = "x86_64-linux-android",
-        sysRoot = listOf(androidSysRootParent.resolve("arch-x86_64"), ANDROID_SYSROOT_NAME),
+        sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-x86_64"), ANDROID_SYSROOT_DIR_BASE_1),
         llvmDir = ANDROID_LLVM_BIN_FOLDER,
     ),
     KonanTarget.WASM32 to TargetInfo(

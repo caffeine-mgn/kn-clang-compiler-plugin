@@ -24,9 +24,9 @@ object Konan {
     val KONAN_EXE_PATH = run {
         val binFolder = prebuildDir.resolve("bin")
         if (HostManager.hostIsMingw) {
-            binFolder.resolve("kotlinc.bat")
+            binFolder.resolve("kotlinc-native.bat")
         } else {
-            binFolder.resolve("kotlinc")
+            binFolder.resolve("kotlinc-native")
         }
     }
 
@@ -76,12 +76,14 @@ object Konan {
         println("Please wait while Sysroot ${target.name} is being installed.")
         val args = listOf("-target", target.name, TMP_SOURCE_FILE.absolutePath)
         val startArg = when {
-            HostManager.hostIsLinux || HostManager.hostIsMac -> listOf("bash", "-c", KONAN_EXE_PATH.absolutePath)
-            HostManager.hostIsMingw -> listOf("cmd", "/c", KONAN_EXE_PATH.absolutePath)
+            HostManager.hostIsLinux || HostManager.hostIsMac -> listOf("bash", "-c", "'${KONAN_EXE_PATH.absolutePath}' ${args.map{"'$it'"}.joinToString(" ")}")
+            HostManager.hostIsMingw -> listOf("cmd", "/c", KONAN_EXE_PATH.absolutePath) + args
             else -> throw RuntimeException("Current platform is not supported")
         }
-        val vv = (startArg + args).toTypedArray()
-        val pb = ProcessBuilder(*vv)
+//        val konancCmd = (startArg + args).toTypedArray()
+        println("Executing ${startArg}")
+        println("in ${TMP_SOURCE_FILE.parentFile}")
+        val pb = ProcessBuilder(*startArg.toTypedArray())
         pb.directory(TMP_SOURCE_FILE.parentFile)
         pb.environment().putAll(System.getenv())
         pb.redirectOutput(ProcessBuilder.Redirect.PIPE)
