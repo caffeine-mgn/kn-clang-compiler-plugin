@@ -36,7 +36,7 @@ fun Project.clangBuildStatic(
     task.staticFile.set(
         buildDir.resolve("native").resolve(name).resolve(target.name).resolve("static").resolve("lib$name.a")
     )
-    task.onlyIf { TargetSupport.isTargetSupportOnHost(target) }
+    task.onlyIf { TargetSupport.isKonancTargetSupportOnHost(target) }
     task.config()
     return task
 }
