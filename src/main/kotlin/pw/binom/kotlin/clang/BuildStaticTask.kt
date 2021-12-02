@@ -154,7 +154,7 @@ abstract class BuildStaticTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
-        if (!TargetSupport.isTargetSupportOnHost(target.get())) {
+        if (!TargetSupport.isKonancTargetSupportOnHost(target.get())) {
             logger.warn("Compile target ${target.get()} not supported on host ${HostManager.host.name}")
             return
         }
@@ -166,6 +166,9 @@ abstract class BuildStaticTask : DefaultTask() {
         }
         if (!HostManager().isEnabled(selectedTarget)) {
             throw StopActionException("Target ${selectedTarget.name} not supported")
+        }
+        if (!TargetSupport.isTargetSupport(selectedTarget)){
+            throw IllegalArgumentException("Target ${selectedTarget.name} is not supported")
         }
         val env = HashMap<String, String>()
         if (HostManager.hostIsMac && selectedTarget == KonanTarget.MACOS_X64) {

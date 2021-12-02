@@ -51,7 +51,7 @@ val PREBUILD_KONAN_DIR_NAME = when {
 
 val HOST_LLVM_BIN_FOLDER = KONAN_DEPS.resolve("$HOST_KONAN_LLVM_DIR_NAME/bin")
 val ANDROID_LLVM_BIN_FOLDER = KONAN_DEPS.resolve("$ANDROID_KONAN_LLVM_DIR_NAME/bin")
-
+val MINGW_X86_SYSROOT="msys2-mingw-w64-i686-1"
 data class TargetInfo(
     val targetName: String,
     val sysRoot: List<File>,
@@ -59,7 +59,7 @@ data class TargetInfo(
     val llvmDir: File,
     val toolchain: File? = null,
 )
-
+val LINUX_ARM64="aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2"
 val targetInfoMap = mapOf(
     KonanTarget.LINUX_X64 to TargetInfo(
         targetName = "x86_64-unknown-linux-gnu",
@@ -82,7 +82,7 @@ val targetInfoMap = mapOf(
     ),
     KonanTarget.MINGW_X86 to TargetInfo(
         targetName = "i686-w64-mingw32",
-        sysRoot = listOf(KONAN_DEPS.resolve("msys2-mingw-w64-i686-1")),
+        sysRoot = listOf(KONAN_DEPS.resolve(MINGW_X86_SYSROOT)),
         llvmDir = HOST_LLVM_BIN_FOLDER,
     ),
     KonanTarget.LINUX_MIPSEL32 to TargetInfo(
@@ -100,10 +100,10 @@ val targetInfoMap = mapOf(
     ),
     KonanTarget.LINUX_ARM64 to TargetInfo(
         targetName = "aarch64-unknown-linux-gnu",
-        sysRoot = listOf(KONAN_DEPS.resolve("aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2/aarch64-unknown-linux-gnu/sysroot")),
+        sysRoot = listOf(KONAN_DEPS.resolve("$LINUX_ARM64/aarch64-unknown-linux-gnu/sysroot")),
         clangCompileArgs = listOf(/*"-mfpu=vfp", "-mfloat-abi=hard", */"-fPIC"),
         llvmDir = HOST_LLVM_BIN_FOLDER,
-        toolchain = KONAN_DEPS.resolve("aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2")
+        toolchain = KONAN_DEPS.resolve(LINUX_ARM64)
     ),
     KonanTarget.ANDROID_ARM32 to TargetInfo(
         targetName = "arm-linux-androideabi",
