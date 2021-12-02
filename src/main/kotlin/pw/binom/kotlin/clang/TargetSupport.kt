@@ -2,10 +2,11 @@ package pw.binom.kotlin.clang
 
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import org.jetbrains.kotlin.konan.target.TargetSupportException
 
 object TargetSupport {
     val hm = HostManager()
+    fun isTargetSupport(target:KonanTarget)=
+            targetInfoMap.containsKey(target)
 //    private val MINGW_TARGETS = setOf(
 //        KonanTarget.LINUX_ARM32_HFP,
 //        KonanTarget.LINUX_ARM64,
@@ -69,7 +70,7 @@ object TargetSupport {
 //            else -> throw TargetSupportException("Target ${HostManager.host.name} not supported")
 //        }
 
-    fun isTargetSupportOnHost(target: KonanTarget) =
+    fun isKonancTargetSupportOnHost(target: KonanTarget) =
         hm.isEnabled(target)
 //        target in hostTargets
 }
