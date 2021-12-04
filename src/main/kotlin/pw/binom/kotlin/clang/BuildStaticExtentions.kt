@@ -12,7 +12,7 @@ fun AbstractKotlinNativeCompilation.addStatic(vararg files: Any?) {
         args += it
     }
     files.forEach {
-        val file = project.fileAnyWay(it)?:return@forEach
+        val file = project.fileAnyWay(it) ?: return@forEach
         args += "-include-binary"
         args += file.absolutePath
     }
@@ -33,8 +33,17 @@ fun Project.clangBuildStatic(
     task.group = "build"
     task.optimizationLevel(2)
     task.objectDirectory.set(buildDir.resolve("native").resolve(name).resolve(target.name).resolve("obj"))
+    val libExtension = if (target == KonanTarget.WASM32) {
+        "wasm"
+    } else {
+        "a"
+    }
     task.staticFile.set(
-        buildDir.resolve("native").resolve(name).resolve(target.name).resolve("static").resolve("lib$name.a")
+        buildDir.resolve("native")
+            .resolve(name)
+            .resolve(target.name)
+            .resolve("static")
+            .resolve("lib$name.a")
     )
     task.onlyIf { TargetSupport.isKonancTargetSupportOnHost(target) }
     task.config()

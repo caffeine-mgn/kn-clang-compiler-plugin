@@ -71,12 +71,12 @@ abstract class BuildStaticTask : DefaultTask() {
     @get:OutputDirectory
     abstract val objectDirectory: RegularFileProperty
 
-    fun objectDirectory(file:File){
+    fun objectDirectory(file: File) {
         this.objectDirectory.set(file)
     }
 
-    fun objectDirectory(file:Any?){
-        val file = project.fileAnyWay(file)?:throw IllegalArgumentException("Can't cast $file to File")
+    fun objectDirectory(file: Any?) {
+        val file = project.fileAnyWay(file) ?: throw IllegalArgumentException("Can't cast $file to File")
         objectDirectory(file)
     }
 
@@ -167,7 +167,7 @@ abstract class BuildStaticTask : DefaultTask() {
         if (!HostManager().isEnabled(selectedTarget)) {
             throw StopActionException("Target ${selectedTarget.name} not supported")
         }
-        if (!TargetSupport.isTargetSupport(selectedTarget)){
+        if (!TargetSupport.isTargetSupport(selectedTarget)) {
             throw IllegalArgumentException("Target ${selectedTarget.name} is not supported")
         }
         val env = HashMap<String, String>()
@@ -313,10 +313,10 @@ abstract class BuildStaticTask : DefaultTask() {
             )
         }
     }
-
-    private val File.executable
-        get() = when (HostManager.host.family) {
-            Family.MINGW -> File("$this.exe")
-            else -> this
-        }
 }
+
+internal val File.executable
+    get() = when (HostManager.host.family) {
+        Family.MINGW -> parentFile.resolve("$name.exe")
+        else -> this
+    }

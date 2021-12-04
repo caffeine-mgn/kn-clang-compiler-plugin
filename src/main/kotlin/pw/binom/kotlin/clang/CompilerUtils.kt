@@ -11,7 +11,8 @@ class Toolchain(
 
 
 val KONAN_USER_DIR = File(System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan")
-
+val WASM32_SYSROOT_NAME = "target-sysroot-4-embedded"
+val WASM32_TOOL_CHAIN_NAME = "target-toolchain-2-mingw-wasm"
 val MINGW_TOOLCHAIN = Toolchain(
     clang = KONAN_USER_DIR.resolve("llvm-11.1.0-windows-x64-essentials/bin/clang.exe"),
     ar = KONAN_USER_DIR.resolve("llvm-11.1.0-windows-x64-essentials/bin/llvm-ar.exe"),
@@ -22,7 +23,7 @@ val ANDROID_WINDOWS_TOOLCHAIN = Toolchain(
     ar = KONAN_USER_DIR.resolve("target-toolchain-2-windows-android_ndk/bin/llvm-ar.exe"),
 )
 
-private val  LINUX_X64_SYSROOT="x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2"
+private val LINUX_X64_SYSROOT = "x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2"
 
 val KONAN_DEPS = KONAN_USER_DIR.resolve("dependencies")
 val HOST_KONAN_LLVM_DIR_NAME = when {
@@ -51,7 +52,8 @@ val PREBUILD_KONAN_DIR_NAME = when {
 
 val HOST_LLVM_BIN_FOLDER = KONAN_DEPS.resolve("$HOST_KONAN_LLVM_DIR_NAME/bin")
 val ANDROID_LLVM_BIN_FOLDER = KONAN_DEPS.resolve("$ANDROID_KONAN_LLVM_DIR_NAME/bin")
-val MINGW_X86_SYSROOT="msys2-mingw-w64-i686-1"
+val MINGW_X86_SYSROOT = "msys2-mingw-w64-i686-1"
+
 data class TargetInfo(
     val targetName: String,
     val sysRoot: List<File>,
@@ -59,7 +61,8 @@ data class TargetInfo(
     val llvmDir: File,
     val toolchain: File? = null,
 )
-val LINUX_ARM64="aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2"
+
+val LINUX_ARM64 = "aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2"
 val targetInfoMap = mapOf(
     KonanTarget.LINUX_X64 to TargetInfo(
         targetName = "x86_64-unknown-linux-gnu",
@@ -126,8 +129,30 @@ val targetInfoMap = mapOf(
         llvmDir = ANDROID_LLVM_BIN_FOLDER,
     ),
     KonanTarget.WASM32 to TargetInfo(
-        targetName = "wasm32",
-        sysRoot = listOf(KONAN_DEPS.resolve("target-sysroot-4-embedded")),
+        targetName = "wasm32-unknown-unknown",//"wasm32",
+        sysRoot = listOf(KONAN_DEPS.resolve(WASM32_SYSROOT_NAME)),
         llvmDir = HOST_LLVM_BIN_FOLDER,
+        clangCompileArgs = listOf(
+            "-fPIC",
+            "-fno-rtti",
+            "-fvisibility=default",
+            "-D_LIBCPP_ABI_VERSION=2",
+            "-D_LIBCPP_NO_EXCEPTIONS=1",
+            "-nostdinc",
+            "-Xclang",
+            "-nobuiltininc",
+            "-Xclang",
+            "-nostdsysteminc",
+            "-BC" + KONAN_DEPS.resolve(WASM32_TOOL_CHAIN_NAME).resolve("bin").absolutePath,
+            "-isystem${KONAN_DEPS.resolve(HOST_KONAN_LLVM_DIR_NAME)}/lib/clang/11.1.0/include",
+            "-Xclang",
+            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/libcxx")}",
+            "-Xclang",
+            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("lib/libcxxabi/include")}",
+            "-Xclang",
+            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/compat")}",
+            "-Xclang",
+            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/libc")}",
+        ),
     )
 )
