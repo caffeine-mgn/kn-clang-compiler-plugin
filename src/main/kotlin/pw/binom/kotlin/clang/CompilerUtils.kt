@@ -28,14 +28,14 @@ private val LINUX_X64_SYSROOT = "x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-k
 val KONAN_DEPS = KONAN_USER_DIR.resolve("dependencies")
 val HOST_KONAN_LLVM_DIR_NAME = when {
     HostManager.hostIsLinux -> "llvm-11.1.0-linux-x64-essentials"
-    HostManager.hostIsMac -> "clang-llvm-apple-8.0.0-darwin-macos"
+    HostManager.hostIsMac -> "apple-llvm-20200714-macos-x64-essentials"
     HostManager.hostIsMingw -> "llvm-11.1.0-windows-x64-essentials"
     else -> error("Unknown host OS")
 }
 
 private val ANDROID_KONAN_LLVM_DIR_NAME = when {
     HostManager.hostIsLinux -> "target-toolchain-2-linux-android_ndk"
-    HostManager.hostIsMac -> TODO()
+    HostManager.hostIsMac -> "target-toolchain-2-osx-android_ndk"
     HostManager.hostIsMingw -> "target-toolchain-2-windows-android_ndk"
     else -> error("Unknown host OS")
 }
