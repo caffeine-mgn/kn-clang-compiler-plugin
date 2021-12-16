@@ -37,10 +37,10 @@ object Konan {
         println("Please wait while Kotlin/Native compiler 1.6.0 is being installed.")
         val arch = System.getProperty("os.arch")
         val url = when {
-            HostManager.hostIsLinux -> "https:  //github.com/JetBrains/kotlin/releases/download/v1.6.0/kotlin-native-linux-x86_64-1.6.0.tar.gz"
-            HostManager.hostIsMac && arch == "aarch64" -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.0/kotlin-native-macos-aarch64-1.6.0.tar.gz"
-            HostManager.hostIsMac -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.0/kotlin-native-macos-x86_64-1.6.0.tar.gz"
-            HostManager.hostIsMingw -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.0/kotlin-native-windows-x86_64-1.6.0.zip"
+            HostManager.hostIsLinux -> "https:  //github.com/JetBrains/kotlin/releases/download/v1.6.10/kotlin-native-linux-x86_64-1.6.10.tar.gz"
+            HostManager.hostIsMac && arch == "aarch64" -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.10/kotlin-native-macos-aarch64-1.6.10.tar.gz"
+            HostManager.hostIsMac -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.10/kotlin-native-macos-x86_64-1.6.10.tar.gz"
+            HostManager.hostIsMingw -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.10/kotlin-native-windows-x86_64-1.6.10.zip"
             else -> throw RuntimeException("Unsupported host ${HostManager.hostOs()}:${HostManager.hostArch()}")
         }
 
