@@ -3,20 +3,21 @@
 This plugin makes possible to use konon clang compiler.
 
 ### Support targets:
-|Target Name|Host compatibility|
-|----|-----|
-|linux_x64,linux|Windows|
-|macos_x64|Macos|
-|mingw_x64,mingw|Windows|
-|mingw_x86|Windows|
-|linux_mipsel32||
-|linux_arm32_hfp,raspberrypi|Windows,Linux_x64|
-|linux_arm64|Windows|
-|android_arm32|Windows|
-|android_arm64|Windows|
-|android_x86|Windows|
-|android_x64|Windows|
-|wasm32|Windows|
+|Target Name| Host compatibility |
+|----|--------------------|
+|linux_x64| Windows, Linux x64 |
+|macos_x64| Macos              |
+|mingw_x64,mingw| Windows, Linux x64 |
+|mingw_x86| Windows, Linux x64 |
+|linux_mips32| Linux x64          |
+|linux_mipsel32| Linux x64          |
+|linux_arm32_hfp,raspberrypi| Windows, Linux x64 |
+|linux_arm64| Windows, Linux x64 |
+|android_arm32| Windows, Linux x64 |
+|android_arm64| Windows, Linux x64 |
+|android_x86| Windows, Linux x64 |
+|android_x64| Windows, Linux x64 |
+|wasm32| Windows, Linux x64 |
 
 ### How to use
 #### Examples:
