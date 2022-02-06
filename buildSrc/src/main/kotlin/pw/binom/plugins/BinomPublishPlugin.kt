@@ -4,8 +4,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.jvm.tasks.Jar
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
+import org.gradle.plugins.signing.SigningExtension
 import java.net.URI
 import java.util.logging.Logger
 
@@ -13,9 +13,28 @@ const val BINOM_REPO_URL = "binom.repo.url"
 const val BINOM_REPO_USER = "binom.repo.user"
 const val BINOM_REPO_PASSWORD = "binom.repo.password"
 
+private fun Project.propertyOrNull(property: String) =
+    if (hasProperty(property)) property(property) as String else null
+
 class BinomPublishPlugin : Plugin<Project> {
     private val logger = Logger.getLogger(this::class.java.name)
     override fun apply(target: Project) {
+
+        val gpgKeyId = target.propertyOrNull("binom.gpg.key_id")
+        val gpgPassword = target.propertyOrNull("binom.gpg.password")
+        val gpgPrivateKey = target.propertyOrNull("binom.gpg.private_key")?.replace("|", "\n")
+        val centralUserName = target.propertyOrNull("binom.central.username")
+        val centralPassword = target.propertyOrNull("binom.central.password")
+        val signApply = gpgKeyId != null && gpgPassword != null && gpgPrivateKey != null
+        if (signApply) {
+            println("Sign enabled")
+            target.apply {
+//                it.plugin("org.gradle.signing")
+                it.plugin("signing")
+            }
+        } else {
+            println("Sign disabled")
+        }
         if (!target.hasProperty(BINOM_REPO_URL)) {
             logger.warning("Property [$BINOM_REPO_URL] not found publication plugin will not apply")
             return
@@ -43,12 +62,27 @@ class BinomPublishPlugin : Plugin<Project> {
                     it.password = target.property(BINOM_REPO_PASSWORD) as String
                 }
             }
+            if (centralUserName != null && centralPassword != null) {
+                it.maven {
+                    it.name = "Central"
+                    val url = if ((target.version as String).endsWith("-SNAPSHOT"))
+                        "https://s01.oss.sonatype.org/content/repositories/snapshots"
+                    else
+                        "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
+                    it.url = URI(url)
+                    it.credentials {
+                        it.username = centralUserName
+                        it.password = centralPassword
+                    }
+                }
+            }
         }
+
         publishing.publications.withType(MavenPublication::class.java) {
             it.pom {
                 it.scm {
-                    it.connection.set("git@github.com:caffeine-mgn/kn-clang-compiler-plugin.git")
-                    it.url.set("https://github.com/caffeine-mgn/kn-clang-compiler-plugin")
+                    it.connection.set(PublishInfo.GIT_PATH_TO_PROJECT)
+                    it.url.set(PublishInfo.HTTP_PATH_TO_PROJECT)
                 }
                 it.developers {
                     it.developer {
@@ -64,6 +98,15 @@ class BinomPublishPlugin : Plugin<Project> {
                     }
                 }
             }
+        }
+        if (signApply) {
+            target.extensions.configure(SigningExtension::class.java) {
+                it.useInMemoryPgpKeys(gpgKeyId, gpgPrivateKey, gpgPassword)
+                it.sign(publishing.publications)
+                it.setRequired(target.tasks.filterIsInstance<PublishToMavenRepository>())
+            }
+        } else {
+            logger.warning("gpg configuration missing. Jar will be publish without sign")
         }
     }
 }
