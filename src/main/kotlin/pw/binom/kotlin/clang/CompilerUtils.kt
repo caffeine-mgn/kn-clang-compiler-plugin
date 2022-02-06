@@ -9,7 +9,6 @@ class Toolchain(
     val ar: File,
 )
 
-
 val KONAN_USER_DIR = File(System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan")
 val WASM32_SYSROOT_NAME = "target-sysroot-4-embedded"
 val WASM32_TOOL_CHAIN_NAME = "target-toolchain-2-mingw-wasm"
@@ -130,7 +129,7 @@ val targetInfoMap = mapOf(
         llvmDir = ANDROID_LLVM_BIN_FOLDER,
     ),
     KonanTarget.WASM32 to TargetInfo(
-        targetName = "wasm32-unknown-unknown",//"wasm32",
+        targetName = "wasm32-unknown-unknown", // "wasm32",
         sysRoot = listOf(KONAN_DEPS.resolve(WASM32_SYSROOT_NAME)),
         llvmDir = HOST_LLVM_BIN_FOLDER,
         clangCompileArgs = listOf(

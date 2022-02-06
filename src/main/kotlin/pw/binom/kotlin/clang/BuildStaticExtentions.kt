@@ -19,7 +19,6 @@ fun AbstractKotlinNativeCompilation.addStatic(vararg files: Any?) {
     kotlinOptions.freeCompilerArgs = args
 }
 
-
 fun Project.clangBuildStatic(
     target: KonanTarget = HostManager.host,
     name: String = "native",
@@ -33,11 +32,11 @@ fun Project.clangBuildStatic(
     task.group = "build"
     task.optimizationLevel(2)
     task.objectDirectory.set(buildDir.resolve("native").resolve(name).resolve(target.name).resolve("obj"))
-    val libExtension = if (target == KonanTarget.WASM32) {
-        "wasm"
-    } else {
-        "a"
-    }
+//    val libExtension = if (target == KonanTarget.WASM32) {
+//        "wasm"
+//    } else {
+//        "a"
+//    }
     task.staticFile.set(
         buildDir.resolve("native")
             .resolve(name)

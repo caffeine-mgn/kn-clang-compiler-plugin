@@ -2,11 +2,9 @@ package pw.binom.kotlin.clang
 
 import org.gradle.api.tasks.TaskContainer
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinNativeCompile
-import org.jetbrains.kotlin.konan.target.KonanTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
-import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
 
 val KotlinNativeLink.targetKonan
     get() = binary.target.konanTarget

@@ -76,12 +76,16 @@ object Konan {
         println("Please wait while Sysroot ${target.name} is being installed.")
         val args = listOf("-target", target.name, TMP_SOURCE_FILE.absolutePath)
         val startArg = when {
-            HostManager.hostIsLinux || HostManager.hostIsMac -> listOf("bash", "-c", "'${KONAN_EXE_PATH.absolutePath}' ${args.map{"'$it'"}.joinToString(" ")}")
+            HostManager.hostIsLinux || HostManager.hostIsMac -> listOf(
+                "bash",
+                "-c",
+                "'${KONAN_EXE_PATH.absolutePath}' ${args.map { "'$it'" }.joinToString(" ")}"
+            )
             HostManager.hostIsMingw -> listOf("cmd", "/c", KONAN_EXE_PATH.absolutePath) + args
             else -> throw RuntimeException("Current platform is not supported")
         }
 //        val konancCmd = (startArg + args).toTypedArray()
-        println("Executing ${startArg}")
+        println("Executing $startArg")
         println("in ${TMP_SOURCE_FILE.parentFile}")
         val pb = ProcessBuilder(*startArg.toTypedArray())
         pb.directory(TMP_SOURCE_FILE.parentFile)
@@ -152,10 +156,14 @@ object Konan {
     }
 }
 
-fun wrapBatchCmd(args:List<String>){
-    val startArg = when {
-        HostManager.hostIsLinux || HostManager.hostIsMac -> listOf("bash", "-c", "'${args.first()}' ${args.subList(1,args.lastIndex).map{"'$it'"}.joinToString(" ")}")
-        HostManager.hostIsMingw -> listOf("cmd", "/c") + args
-        else -> throw RuntimeException("Current platform is not supported")
-    }
-}
+// fun wrapBatchCmd(args: List<String>) {
+//    val startArg = when {
+//        HostManager.hostIsLinux || HostManager.hostIsMac -> listOf(
+//            "bash",
+//            "-c",
+//            "'${args.first()}' ${args.subList(1, args.lastIndex).map { "'$it'" }.joinToString(" ")}"
+//        )
+//        HostManager.hostIsMingw -> listOf("cmd", "/c") + args
+//        else -> throw RuntimeException("Current platform is not supported")
+//    }
+// }

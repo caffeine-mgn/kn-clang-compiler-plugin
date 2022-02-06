@@ -2,7 +2,6 @@ package pw.binom.kotlin.clang
 
 import java.io.BufferedReader
 import java.io.IOException
-
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.lang.Appendable
@@ -29,17 +28,17 @@ class StreamGobbler constructor(stream: InputStream) : AbstractStreamGobbler(str
     }
 }
 
-//class StreamGobblerStdout constructor(stream: InputStream) : AbstractStreamGobbler(stream) {
+// class StreamGobblerStdout constructor(stream: InputStream) : AbstractStreamGobbler(stream) {
 //    override fun append(line: String) {
 //        println(line)
 //    }
-//}
+// }
 //
-//class StreamGobblerStderr constructor(stream: InputStream) : AbstractStreamGobbler(stream) {
+// class StreamGobblerStderr constructor(stream: InputStream) : AbstractStreamGobbler(stream) {
 //    override fun append(line: String) {
 //        System.err.println(line)
 //    }
-//}
+// }
 
 class StreamGobblerAppendable constructor(stream: InputStream, val dest: Appendable, val appendNewLine: Boolean) :
     AbstractStreamGobbler(stream) {

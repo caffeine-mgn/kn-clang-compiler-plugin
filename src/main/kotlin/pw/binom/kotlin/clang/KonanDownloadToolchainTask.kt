@@ -6,7 +6,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
-abstract class KonanDownloadToolchainTask:DefaultTask() {
+abstract class KonanDownloadToolchainTask : DefaultTask() {
     @get:Input
     abstract val target: Property<KonanTarget>
 

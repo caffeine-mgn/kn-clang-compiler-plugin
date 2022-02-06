@@ -5,9 +5,10 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 object TargetSupport {
     val hm = HostManager()
-    fun isTargetSupport(target:KonanTarget)=
-            targetInfoMap.containsKey(target)
-//    private val MINGW_TARGETS = setOf(
+    fun isTargetSupport(target: KonanTarget) =
+        targetInfoMap.containsKey(target)
+
+    //    private val MINGW_TARGETS = setOf(
 //        KonanTarget.LINUX_ARM32_HFP,
 //        KonanTarget.LINUX_ARM64,
 //        KonanTarget.LINUX_MIPSEL32,

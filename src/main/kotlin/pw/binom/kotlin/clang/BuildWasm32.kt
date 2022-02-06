@@ -10,12 +10,11 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 abstract class BuildWasm32 : CLangLinkTask() {
 
-
-    //no-entry
+    // no-entry
 
     @get:Optional
     @get:Input
-    abstract val entryPoint: Property<String> //--entry --no-entry
+    abstract val entryPoint: Property<String> // --entry --no-entry
 
     @get:Input
     abstract val exports: ListProperty<String>
@@ -23,13 +22,12 @@ abstract class BuildWasm32 : CLangLinkTask() {
     @get:Input
     abstract val exportAll: Property<Boolean>
 
-
     /**
      * Optimization level for LTO
      */
     @get:Optional
     @get:Input
-    abstract val ltoOptimizationLevel: Property<Int>//--lto-O3
+    abstract val ltoOptimizationLevel: Property<Int> // --lto-O3
 
     @TaskAction
     fun execute() {
@@ -74,10 +72,10 @@ abstract class BuildWasm32 : CLangLinkTask() {
             args += it
         }
 
-        println("Args: ${args}")
+        println("Args: $args")
 
         val exitCode = startProcessAndWait(
-            args=args,
+            args = args,
             workDirectory = outFile.parentFile,
             envs = mapOf("PATH" to "$HOST_LLVM_BIN_FOLDER;${System.getenv("PATH")}")
         )

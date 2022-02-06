@@ -15,6 +15,8 @@ import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 abstract class BuildStaticTask : DefaultTask() {
     class Compile(val source: File, val objectFile: File, val args: List<String>?)
@@ -24,7 +26,6 @@ abstract class BuildStaticTask : DefaultTask() {
     fun target(target: KonanTarget) {
         this.target.set(target)
     }
-
 
     private var compiles = ArrayList<Compile>()
 
@@ -48,7 +49,6 @@ abstract class BuildStaticTask : DefaultTask() {
     @get:OutputFile
     abstract val staticFile: RegularFileProperty
 
-
     @get:Input
     abstract val debugEnabled: Property<Boolean>
 
@@ -59,11 +59,9 @@ abstract class BuildStaticTask : DefaultTask() {
     @get:Input
     abstract val optimizationLevel: Property<Int>
 
-
     fun optimizationLevel(level: Int) {
         this.optimizationLevel.set(level)
     }
-
 
     private val selectedTarget
         get() = target.getOrElse(HostManager.host)
@@ -76,8 +74,7 @@ abstract class BuildStaticTask : DefaultTask() {
     }
 
     fun objectDirectory(file: Any?) {
-        val file = project.fileAnyWay(file) ?: throw IllegalArgumentException("Can't cast $file to File")
-        objectDirectory(file)
+        objectDirectory(project.fileAnyWay(file) ?: throw IllegalArgumentException("Can't cast $file to File"))
     }
 
     private val nativeObjDir by lazy {
@@ -113,7 +110,7 @@ abstract class BuildStaticTask : DefaultTask() {
     ) {
         sourceDir.list()?.forEach {
             val f = sourceDir.resolve(it)
-            if (f.isFile && (f.extension.toLowerCase() == "c" || f.extension.toLowerCase() == "cpp")) {
+            if (f.isFile && (f.extension.lowercase() == "c" || f.extension.lowercase() == "cpp")) {
                 if (filter == null || filter(f)) {
                     compileFile(
                         source = f,
@@ -136,9 +133,8 @@ abstract class BuildStaticTask : DefaultTask() {
 
     @JvmOverloads
     fun compileFile(source: File, objectDir: File? = null, args: List<String>? = null) {
-        val objectDir = objectDir ?: nativeObjDir
-        val outFile =
-            objectDir.resolve("${source.nameWithoutExtension}.o")
+        val newObjectDir = objectDir ?: nativeObjDir
+        val outFile = newObjectDir.resolve("${source.nameWithoutExtension}.o")
         compiles.add(
             Compile(
                 source = source,
@@ -237,7 +233,6 @@ abstract class BuildStaticTask : DefaultTask() {
                 )
             }
 
-
         var threadPool: ExecutorService? = null
         if (multiThread) {
             threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
@@ -279,7 +274,8 @@ abstract class BuildStaticTask : DefaultTask() {
             if (it.code != 0) {
                 println("Compile ${it.source}: FAIL")
                 throw GradleScriptException(
-                    "Can't build \"${it.source}\".", RuntimeException(
+                    "Can't build \"${it.source}\".",
+                    RuntimeException(
                         "Output:\n${it.result}"
                     )
                 )
