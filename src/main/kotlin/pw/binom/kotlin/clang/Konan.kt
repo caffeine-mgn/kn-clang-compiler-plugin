@@ -10,7 +10,6 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.zip.ZipInputStream
-import kotlin.RuntimeException
 
 object Konan {
     private val TMP_SOURCE_FILE by lazy {
@@ -34,7 +33,7 @@ object Konan {
         if (prebuildDir.isDirectory) {
             return
         }
-        println("Please wait while Kotlin/Native compiler 1.6.0 is being installed.")
+        println("Please wait while Kotlin/Native compiler 1.6.21 is being installed.")
         val arch = System.getProperty("os.arch")
         val url = when {
             HostManager.hostIsLinux -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.21/kotlin-native-linux-x86_64-1.6.21.tar.gz"
@@ -43,7 +42,7 @@ object Konan {
             HostManager.hostIsMingw -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.21/kotlin-native-windows-x86_64-1.6.21.zip"
             else -> throw RuntimeException("Unsupported host ${HostManager.hostOs()}:${HostManager.hostArch()}")
         }
-
+        println("Getting Konan from Url \"$url\"")
         val connection = URL(url).openConnection() as HttpURLConnection
         try {
             if (connection.responseCode != 200) {
