@@ -1,22 +1,20 @@
 import pw.binom.getGitBranch
+import pw.binom.plugins.PublishInfo
 
 plugins {
     kotlin("jvm")
     `java-gradle-plugin`
     `maven-publish`
     id("org.jmailen.kotlinter")
+    id("com.gradle.plugin-publish") version "0.16.0"
 }
 
 apply {
-    plugin(pw.binom.plugins.BinomPublishPlugin::class.java)
+    plugin<org.jetbrains.dokka.gradle.DokkaPlugin>()
 }
 
 allprojects {
-    val branch = getGitBranch()
-    version = if (branch == "main" || branch == "master")
-        pw.binom.Versions.LIB_VERSION
-    else
-        "${pw.binom.Versions.LIB_VERSION}-SNAPSHOT"
+    version = System.getenv("GITHUB_REF_NAME") ?: "1.0.0-SNAPSHOT"
     group = "pw.binom"
 
     repositories {
@@ -24,34 +22,34 @@ allprojects {
         mavenCentral()
     }
 }
-tasks {
-    val kotlinSourcesJar by getting {
-    }
-//    val sourcesJar by creating(Jar::class) {
-//        dependsOn(JavaPlugin.CLASSES_TASK_NAME)
-//        archiveClassifier.set("sources")
-//        from(kotlin.sourceSets["main"].kotlin)
-// //        from(sourceSets["main"].allSource)
+// tasks {
+//    val kotlinSourcesJar by getting {
 //    }
-    artifacts {
-//        this.sourceArtifacts(sourcesJar)
-        add("archives", kotlinSourcesJar)
-//        add("archives", )
-//        add("archives", javadocJar)
-    }
-}
+// //    val sourcesJar by creating(Jar::class) {
+// //        dependsOn(JavaPlugin.CLASSES_TASK_NAME)
+// //        archiveClassifier.set("sources")
+// //        from(kotlin.sourceSets["main"].kotlin)
+// // //        from(sourceSets["main"].allSource)
+// //    }
+// //    artifacts {
+// ////        this.sourceArtifacts(sourcesJar)
+// //        add("archives", kotlinSourcesJar)
+// ////        add("archives", )
+// ////        add("archives", javadocJar)
+// //    }
+// }
 
 dependencies {
     api(gradleApi())
     api("org.jetbrains.kotlin:kotlin-gradle-plugin:${pw.binom.Versions.KOTLIN_VERSION}")
 }
 
-apply<pw.binom.plugins.DocsPlugin>()
+//apply<pw.binom.plugins.DocsPlugin>()
 
-kotlinter {
-    indentSize = 4
-    disabledRules = arrayOf("no-wildcard-imports")
-}
+//kotlinter {
+//    indentSize = 4
+//    disabledRules = arrayOf("no-wildcard-imports")
+//}
 gradlePlugin {
     plugins {
         create("kn-clang") {
@@ -62,11 +60,16 @@ gradlePlugin {
         }
     }
 }
+pluginBundle {
+    website = PublishInfo.HTTP_PATH_TO_PROJECT
+    vcsUrl = PublishInfo.GIT_PATH_TO_PROJECT
+    description = PublishInfo.DESCRIPTION
+    tags = listOf("kotlin", "clang", "konan")
+}
 
 tasks {
-    val dokkaJavadoc by getting
     val javadocJar by creating(Jar::class) {
-        dependsOn(dokkaJavadoc)
+        dependsOn("dokkaJavadoc")
         archiveClassifier.set("javadoc")
         from(javadoc)
     }
@@ -85,8 +88,5 @@ publishing {
         }
     }
 }
-tasks {
-    val compileKotlin by getting {
-        dependsOn("lintKotlinMain")
-    }
-}
+
+apply<pw.binom.publish.plugins.PrepareProject>()

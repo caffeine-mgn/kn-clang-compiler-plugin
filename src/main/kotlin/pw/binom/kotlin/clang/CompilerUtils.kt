@@ -43,10 +43,10 @@ private val ANDROID_SYSROOT_DIR_BASE_1 = KONAN_DEPS.resolve(ANDROID_KONAN_LLVM_D
 private val ANDROID_SYSROOT_DIR_TARGETS_2 = KONAN_DEPS.resolve("target-sysroot-1-android_ndk").resolve("android-21")
 
 val PREBUILD_KONAN_DIR_NAME = when {
-    HostManager.hostIsLinux -> "kotlin-native-prebuilt-linux-x86_64-1.6.10"
-    HostManager.hostIsMac && System.getProperty("os.arch") == "aarch64" -> "kotlin-native-macos-aarch64-1.6.10"
-    HostManager.hostIsMac -> "kotlin-native-prebuilt-macos-x86_64-1.6.10"
-    HostManager.hostIsMingw -> "kotlin-native-prebuilt-windows-x86_64-1.6.10"
+    HostManager.hostIsLinux -> "kotlin-native-prebuilt-linux-x86_64-1.6.21"
+    HostManager.hostIsMac && System.getProperty("os.arch") == "aarch64" -> "kotlin-native-macos-aarch64-1.6.21"
+    HostManager.hostIsMac -> "kotlin-native-prebuilt-macos-x86_64-1.6.21"
+    HostManager.hostIsMingw -> "kotlin-native-prebuilt-windows-x86_64-1.6.21"
     else -> error("Unknown host OS")
 }
 

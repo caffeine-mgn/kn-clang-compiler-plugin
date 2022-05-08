@@ -5,19 +5,11 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import java.io.File
 
-fun Project.fileAnyWay(obj: Any?): File? {
-    obj ?: return null
-    if (obj is RegularFile) {
-        return obj.asFile
+fun Project.fileAnyWay(obj: Any?): File? =
+    when (obj) {
+        null -> null
+        is RegularFile -> obj.asFile
+        is Provider<*> -> if (obj.isPresent) fileAnyWay(obj.get()) else null
+        is String -> project.file(obj)
+        else -> null
     }
-    if (obj is Provider<*>) {
-        if (!obj.isPresent) {
-            return null
-        }
-        return fileAnyWay(obj.get())
-    }
-    if (obj is String) {
-        project.file(obj)
-    }
-    return null
-}
