@@ -42,6 +42,7 @@ allprojects {
 dependencies {
     api(gradleApi())
     api("org.jetbrains.kotlin:kotlin-gradle-plugin:${pw.binom.Versions.KOTLIN_VERSION}")
+    implementation("org.apache.commons:commons-compress:1.21")
 }
 
 //apply<pw.binom.plugins.DocsPlugin>()

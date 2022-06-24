@@ -1,7 +1,7 @@
 package pw.binom.kotlin.clang
 
-import org.gradle.internal.impldep.org.apache.commons.compress.archivers.tar.TarArchiveInputStream
-import org.gradle.internal.impldep.org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
@@ -68,10 +68,6 @@ object Konan {
         if (info.sysRoot.all { it.isDirectory }) {
             return
         }
-        info.sysRoot.forEach {
-            println("$it -> ${it.isDirectory}")
-        }
-//        println("Please wait while Toolchain ${target.name} is being installed.")
         println("Please wait while Sysroot ${target.name} is being installed.")
         val args = listOf("-target", target.name, TMP_SOURCE_FILE.absolutePath)
         val startArg = when {
