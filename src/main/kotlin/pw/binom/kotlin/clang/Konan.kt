@@ -150,15 +150,3 @@ object Konan {
         }
     }
 }
-
-// fun wrapBatchCmd(args: List<String>) {
-//    val startArg = when {
-//        HostManager.hostIsLinux || HostManager.hostIsMac -> listOf(
-//            "bash",
-//            "-c",
-//            "'${args.first()}' ${args.subList(1, args.lastIndex).map { "'$it'" }.joinToString(" ")}"
-//        )
-//        HostManager.hostIsMingw -> listOf("cmd", "/c") + args
-//        else -> throw RuntimeException("Current platform is not supported")
-//    }
-// }
