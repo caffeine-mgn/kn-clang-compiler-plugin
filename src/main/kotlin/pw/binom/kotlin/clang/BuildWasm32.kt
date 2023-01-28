@@ -29,9 +29,20 @@ abstract class BuildWasm32 : CLangLinkTask() {
     @get:Input
     abstract val ltoOptimizationLevel: Property<Int> // --lto-O3
 
+    @get:Input
+    @get:Optional
+    abstract val konanVersion: Property<String>
+
+    private fun getKonanCompileVersion() =
+        if (konanVersion.isPresent) {
+            konanVersion.get()
+        } else {
+            KotlinVersion.CURRENT.toString()
+        }
+
     @TaskAction
     fun execute() {
-        Konan.checkSysrootInstalled(KonanTarget.WASM32)
+        Konan.checkSysrootInstalled(version = getKonanCompileVersion(), target = KonanTarget.WASM32)
         val ldPath = HOST_LLVM_BIN_FOLDER.resolve("wasm-ld").executable
         val args = ArrayList<String>()
         args += ldPath.absolutePath

@@ -1,4 +1,3 @@
-import pw.binom.getGitBranch
 import pw.binom.plugins.PublishInfo
 
 plugins {

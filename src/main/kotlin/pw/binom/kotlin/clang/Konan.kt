@@ -18,28 +18,29 @@ object Konan {
         file.deleteOnExit()
         file
     }
-    private val prebuildDir = KONAN_USER_DIR.resolve(PREBUILD_KONAN_DIR_NAME)
 
-    val KONAN_EXE_PATH = run {
-        val binFolder = prebuildDir.resolve("bin")
-        if (HostManager.hostIsMingw) {
+    private fun prebuildDir(version: String) = KONAN_USER_DIR.resolve(PREBUILD_KONAN_DIR_NAME(version = version))
+
+    fun KONAN_EXE_PATH(version: String): File {
+        val binFolder = prebuildDir(version).resolve("bin")
+        return if (HostManager.hostIsMingw) {
             binFolder.resolve("kotlinc-native.bat")
         } else {
             binFolder.resolve("kotlinc-native")
         }
     }
 
-    fun checkKonanInstalled() {
-        if (prebuildDir.isDirectory) {
+    fun checkKonanInstalled(version: String) {
+        if (prebuildDir(version).isDirectory) {
             return
         }
-        println("Please wait while Kotlin/Native compiler 1.6.21 is being installed.")
+        println("Please wait while Kotlin/Native compiler $version is being installed.")
         val arch = System.getProperty("os.arch")
         val url = when {
-            HostManager.hostIsLinux -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.21/kotlin-native-linux-x86_64-1.6.21.tar.gz"
-            HostManager.hostIsMac && arch == "aarch64" -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.21/kotlin-native-macos-aarch64-1.6.21.tar.gz"
-            HostManager.hostIsMac -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.21/kotlin-native-macos-x86_64-1.6.21.tar.gz"
-            HostManager.hostIsMingw -> "https://github.com/JetBrains/kotlin/releases/download/v1.6.21/kotlin-native-windows-x86_64-1.6.21.zip"
+            HostManager.hostIsLinux -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native-linux-x86_64-$version.tar.gz"
+            HostManager.hostIsMac && arch == "aarch64" -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native-macos-aarch64-$version.tar.gz"
+            HostManager.hostIsMac -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native-macos-x86_64-$version.tar.gz"
+            HostManager.hostIsMingw -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native-windows-x86_64-$version.zip"
             else -> throw RuntimeException("Unsupported host ${HostManager.hostOs()}:${HostManager.hostArch()}")
         }
         println("Getting Konan from Url \"$url\"")
@@ -50,8 +51,8 @@ object Konan {
             }
             try {
                 when {
-                    url.endsWith(".tar.gz") -> unpackTargz(connection.inputStream, prebuildDir)
-                    url.endsWith(".zip") -> unpackZip(connection.inputStream, prebuildDir)
+                    url.endsWith(".tar.gz") -> unpackTargz(connection.inputStream, prebuildDir(version))
+                    url.endsWith(".zip") -> unpackZip(connection.inputStream, prebuildDir(version))
                     else -> throw RuntimeException("Unsupported archive \"$url\"")
                 }
             } catch (e: Throwable) {
@@ -62,8 +63,8 @@ object Konan {
         }
     }
 
-    fun checkSysrootInstalled(target: KonanTarget) {
-        checkKonanInstalled()
+    fun checkSysrootInstalled(version: String, target: KonanTarget) {
+        checkKonanInstalled(version = version)
         val info = targetInfoMap[target] ?: throw RuntimeException("Target \"${target.name}\" not supported")
         if (info.sysRoot.all { it.isDirectory }) {
             return
@@ -74,9 +75,10 @@ object Konan {
             HostManager.hostIsLinux || HostManager.hostIsMac -> listOf(
                 "bash",
                 "-c",
-                "'${KONAN_EXE_PATH.absolutePath}' ${args.map { "'$it'" }.joinToString(" ")}"
+                "'${KONAN_EXE_PATH(version).absolutePath}' ${args.map { "'$it'" }.joinToString(" ")}"
             )
-            HostManager.hostIsMingw -> listOf("cmd", "/c", KONAN_EXE_PATH.absolutePath) + args
+
+            HostManager.hostIsMingw -> listOf("cmd", "/c", KONAN_EXE_PATH(version).absolutePath) + args
             else -> throw RuntimeException("Current platform is not supported")
         }
 //        val konancCmd = (startArg + args).toTypedArray()

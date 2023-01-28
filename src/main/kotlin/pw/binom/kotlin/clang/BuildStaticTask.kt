@@ -59,6 +59,10 @@ abstract class BuildStaticTask : DefaultTask() {
     @get:Input
     abstract val optimizationLevel: Property<Int>
 
+    @get:Input
+    @get:Optional
+    abstract val konanVersion: Property<String>
+
     fun optimizationLevel(level: Int) {
         this.optimizationLevel.set(level)
     }
@@ -78,9 +82,9 @@ abstract class BuildStaticTask : DefaultTask() {
     }
 
     private val nativeObjDir by lazy {
-        if (objectDirectory.isPresent)
+        if (objectDirectory.isPresent) {
             objectDirectory.asFile.get()
-        else {
+        } else {
             project.buildDir.resolve("native").resolve(name).resolve("obj").resolve(selectedTarget.name)
         }
     }
@@ -115,7 +119,7 @@ abstract class BuildStaticTask : DefaultTask() {
                     compileFile(
                         source = f,
                         args = args,
-                        objectDir = objectDir,
+                        objectDir = objectDir
                     )
                 }
             }
@@ -148,6 +152,13 @@ abstract class BuildStaticTask : DefaultTask() {
 
     private class CompileResult(val source: File, val code: Int, val result: String)
 
+    private fun getKonanCompileVersion() =
+        if (konanVersion.isPresent) {
+            konanVersion.get()
+        } else {
+            KotlinVersion.CURRENT.toString()
+        }
+
     @TaskAction
     fun execute() {
         if (!TargetSupport.isKonancTargetSupportOnHost(target.get())) {
@@ -178,7 +189,7 @@ abstract class BuildStaticTask : DefaultTask() {
         }
         env["PATH"] = "$HOST_LLVM_BIN_FOLDER$osPathSeparator${System.getenv("PATH")}"
 
-        Konan.checkSysrootInstalled(selectedTarget)
+        Konan.checkSysrootInstalled(version = getKonanCompileVersion(), target = selectedTarget)
         val targetInfo = targetInfoMap.getValue(selectedTarget)
         fun runCompile(compile: Compile): CompileResult =
             run {
@@ -250,15 +261,17 @@ abstract class BuildStaticTask : DefaultTask() {
             Callable {
                 if (!errorExist.get()) {
                     val c = runCompile(it)
-                    if (c.code != 0)
+                    if (c.code != 0) {
                         errorExist.set(true)
+                    }
                     c
-                } else
+                } else {
                     CompileResult(
                         source = File(""),
                         code = 1,
                         result = ""
                     )
+                }
             }
         }
 
