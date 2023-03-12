@@ -22,7 +22,7 @@ val ANDROID_WINDOWS_TOOLCHAIN = Toolchain(
     ar = KONAN_USER_DIR.resolve("target-toolchain-2-windows-android_ndk/bin/llvm-ar.exe")
 )
 
-private val LINUX_X64_SYSROOT = "x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2"
+val LINUX_X64_SYSROOT = "x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2"
 
 val KONAN_DEPS = KONAN_USER_DIR.resolve("dependencies")
 val HOST_KONAN_LLVM_DIR_NAME = when {

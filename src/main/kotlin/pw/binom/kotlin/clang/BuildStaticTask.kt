@@ -190,7 +190,8 @@ abstract class BuildStaticTask : DefaultTask() {
         env["PATH"] = "$HOST_LLVM_BIN_FOLDER$osPathSeparator${System.getenv("PATH")}"
 
         Konan.checkSysrootInstalled(version = getKonanCompileVersion(), target = selectedTarget)
-        val targetInfo = targetInfoMap.getValue(selectedTarget)
+        val konan = KonanVersion.getVersion(getKonanCompileVersion())
+        val targetInfo = konan.getTargetInfo(selectedTarget)
         fun runCompile(compile: Compile): CompileResult =
             run {
                 val args = ArrayList<String>()
@@ -224,6 +225,7 @@ abstract class BuildStaticTask : DefaultTask() {
                 val builder = ProcessBuilder(
                     args
                 )
+                logger.info("Executing ${args.joinToString(" ")}")
                 builder.environment().putAll(env)
                 val process = builder.start()
 
