@@ -57,7 +57,7 @@ interface KonanVersion {
     }
 
     companion object {
-        private val versions = mapOf("1.8.0" to V1_8_0, "1.8.10" to V1_8_0, "1.8.20-Beta" to V1_8_0, "1.8.20" to V1_8_0)
+        private val versions = mapOf("1.8.0" to V1_8_0, "1.8.10" to V1_8_0, "1.8.20" to V1_8_0, "1.8.21" to V1_8_0)
         fun findVersion(version: String) = versions[version]
         fun getVersion(version: String) =
             findVersion(version) ?: throw GradleException("CLang for konan \"$version\" not supported")
