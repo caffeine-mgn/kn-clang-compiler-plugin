@@ -11,7 +11,7 @@ class ClangPlugin : Plugin<Project> {
         TargetSupport.hostTargets.forEach {
             val task = target.tasks.register(
                 "downloadKonanToolchain${it.name.capitalize()}",
-                KonanDownloadToolchainTask::class.java
+                KonanDownloadToolchainTask::class.java,
             ).get()
             task.description = "Downloads konan toolchain for target ${it.name}"
             downloadKonan.group = "konan"

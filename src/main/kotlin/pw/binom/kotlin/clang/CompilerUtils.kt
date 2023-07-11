@@ -6,7 +6,7 @@ import java.io.File
 
 class Toolchain(
     val clang: File,
-    val ar: File
+    val ar: File,
 )
 
 val KONAN_USER_DIR = File(System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan")
@@ -14,12 +14,12 @@ val WASM32_SYSROOT_NAME = "target-sysroot-4-embedded"
 val WASM32_TOOL_CHAIN_NAME = "target-toolchain-2-mingw-wasm"
 val MINGW_TOOLCHAIN = Toolchain(
     clang = KONAN_USER_DIR.resolve("llvm-11.1.0-windows-x64-essentials/bin/clang.exe"),
-    ar = KONAN_USER_DIR.resolve("llvm-11.1.0-windows-x64-essentials/bin/llvm-ar.exe")
+    ar = KONAN_USER_DIR.resolve("llvm-11.1.0-windows-x64-essentials/bin/llvm-ar.exe"),
 )
 
 val ANDROID_WINDOWS_TOOLCHAIN = Toolchain(
     clang = KONAN_USER_DIR.resolve("target-toolchain-2-windows-android_ndk/bin/clang.exe"),
-    ar = KONAN_USER_DIR.resolve("target-toolchain-2-windows-android_ndk/bin/llvm-ar.exe")
+    ar = KONAN_USER_DIR.resolve("target-toolchain-2-windows-android_ndk/bin/llvm-ar.exe"),
 )
 
 val LINUX_X64_SYSROOT = "x86_64-unknown-linux-gnu-gcc-8.3.0-glibc-2.19-kernel-4.9-2"
@@ -53,13 +53,14 @@ fun PREBUILD_KONAN_DIR_NAME(version: String) = when {
 val HOST_LLVM_BIN_FOLDER = KONAN_DEPS.resolve("$HOST_KONAN_LLVM_DIR_NAME/bin")
 val ANDROID_LLVM_BIN_FOLDER = KONAN_DEPS.resolve("$ANDROID_KONAN_LLVM_DIR_NAME/bin")
 val MINGW_X86_SYSROOT = "msys2-mingw-w64-i686-1"
+val ISYSTEM = KONAN_DEPS.resolve("$HOST_KONAN_LLVM_DIR_NAME/lib/clang/11.1.0/include")
 
 data class TargetInfo(
     val targetName: String,
     val sysRoot: List<File>,
     val clangCompileArgs: List<String> = emptyList(),
     val llvmDir: File,
-    val toolchain: File? = null
+    val toolchain: File? = null,
 )
 
 val LINUX_ARM64 = "aarch64-unknown-linux-gnu-gcc-8.3.0-glibc-2.25-kernel-4.9-2"
@@ -69,64 +70,86 @@ val targetInfoMap = mapOf(
         sysRoot = listOf(KONAN_DEPS.resolve("$LINUX_X64_SYSROOT/x86_64-unknown-linux-gnu/sysroot")),
         llvmDir = HOST_LLVM_BIN_FOLDER,
         clangCompileArgs = listOf("-fPIC"),
-        toolchain = KONAN_DEPS.resolve(LINUX_X64_SYSROOT)
+        toolchain = KONAN_DEPS.resolve(LINUX_X64_SYSROOT),
 //                1.4.32 - sysRoot = konanDeps.resolve("target-gcc-toolchain-3-linux-x86-64/x86_64-unknown-linux-gnu/sysroot")
     ),
     KonanTarget.MACOS_X64 to TargetInfo(
         targetName = "x86_64-apple-macosx",
         sysRoot = listOf(KONAN_DEPS.resolve("target-sysroot-10-macos_x64")),
         clangCompileArgs = listOf("-march=x86-64"),
-        llvmDir = HOST_LLVM_BIN_FOLDER
+        llvmDir = HOST_LLVM_BIN_FOLDER,
     ),
     KonanTarget.MINGW_X64 to TargetInfo(
         targetName = "x86_64-pc-windows-gnu",
-        sysRoot = listOf(KONAN_DEPS.resolve("msys2-mingw-w64-x86_64-1")),
-        llvmDir = HOST_LLVM_BIN_FOLDER
+        sysRoot = listOf(KONAN_DEPS.resolve("msys2-mingw-w64-x86_64-2")),
+        llvmDir = HOST_LLVM_BIN_FOLDER,
     ),
     KonanTarget.MINGW_X86 to TargetInfo(
         targetName = "i686-w64-mingw32",
         sysRoot = listOf(KONAN_DEPS.resolve(MINGW_X86_SYSROOT)),
-        llvmDir = HOST_LLVM_BIN_FOLDER
+        llvmDir = HOST_LLVM_BIN_FOLDER,
     ),
     KonanTarget.LINUX_MIPSEL32 to TargetInfo(
         targetName = "mipsel-unknown-linux-gnu",
         sysRoot = listOf(KONAN_DEPS.resolve("target-sysroot-2-mipsel")),
         clangCompileArgs = listOf("-mfpu=vfp", "-mfloat-abi=hard"),
-        llvmDir = HOST_LLVM_BIN_FOLDER
+        llvmDir = HOST_LLVM_BIN_FOLDER,
     ),
     KonanTarget.LINUX_ARM32_HFP to TargetInfo(
         targetName = "armv6-unknown-linux-gnueabihf",
         sysRoot = listOf(KONAN_DEPS.resolve("arm-unknown-linux-gnueabihf-gcc-8.3.0-glibc-2.19-kernel-4.9-2/arm-unknown-linux-gnueabihf/sysroot")),
         clangCompileArgs = listOf("-mfpu=vfp", "-mfloat-abi=hard"),
         llvmDir = HOST_LLVM_BIN_FOLDER,
-        toolchain = KONAN_DEPS.resolve("arm-unknown-linux-gnueabihf-gcc-8.3.0-glibc-2.19-kernel-4.9-2")
+        toolchain = KONAN_DEPS.resolve("arm-unknown-linux-gnueabihf-gcc-8.3.0-glibc-2.19-kernel-4.9-2"),
     ),
     KonanTarget.LINUX_ARM64 to TargetInfo(
         targetName = "aarch64-unknown-linux-gnu",
         sysRoot = listOf(KONAN_DEPS.resolve("$LINUX_ARM64/aarch64-unknown-linux-gnu/sysroot")),
         clangCompileArgs = listOf(/*"-mfpu=vfp", "-mfloat-abi=hard", */"-fPIC"),
         llvmDir = HOST_LLVM_BIN_FOLDER,
-        toolchain = KONAN_DEPS.resolve(LINUX_ARM64)
+        toolchain = KONAN_DEPS.resolve(LINUX_ARM64),
     ),
     KonanTarget.ANDROID_ARM32 to TargetInfo(
         targetName = "arm-linux-androideabi",
         sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-arm"), ANDROID_SYSROOT_DIR_BASE_1),
-        llvmDir = ANDROID_LLVM_BIN_FOLDER
+        llvmDir = ANDROID_LLVM_BIN_FOLDER,
     ),
     KonanTarget.ANDROID_ARM64 to TargetInfo(
         targetName = "aarch64-linux-android",
         sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-arm64"), ANDROID_SYSROOT_DIR_BASE_1),
-        llvmDir = ANDROID_LLVM_BIN_FOLDER
+        llvmDir = ANDROID_LLVM_BIN_FOLDER,
     ),
+    /**
+     * /home/subochev/.konan/dependencies/llvm-11.1.0-linux-x64-essentials/bin/clang
+     * -O2
+     * -fexceptions
+     * -isystem /home/subochev/.konan/dependencies/llvm-11.1.0-linux-x64-essentials/lib/clang/11.1.0/include
+     * -B/home/subochev/.konan/dependencies/$ANDROID_KONAN_LLVM_DIR_NAME/bin
+     * -fno-stack-protector
+     * -target i686-unknown-linux-android
+     * -fPIC
+     * -D__ANDROID_API__=21
+     * --sysroot=/home/subochev/.konan/dependencies/target-sysroot-1-android_ndk/android-21/arch-x86
+     * -I/home/subochev/.konan/dependencies/$ANDROID_KONAN_LLVM_DIR_NAME/sysroot/usr/include/c++/v1
+     * -I/home/subochev/.konan/dependencies/$ANDROID_KONAN_LLVM_DIR_NAME/sysroot/usr/include
+     * -I/home/subochev/.konan/dependencies/$ANDROID_KONAN_LLVM_DIR_NAME/sysroot/usr/include/i686-linux-android
+     */
     KonanTarget.ANDROID_X86 to TargetInfo(
-        targetName = "i686-linux-android",
+//        targetName = "i686-linux-android",
+        targetName = "i686-unknown-linux-android",
         sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-x86"), ANDROID_SYSROOT_DIR_BASE_1),
-        llvmDir = ANDROID_LLVM_BIN_FOLDER
+        llvmDir = ANDROID_LLVM_BIN_FOLDER,
+        clangCompileArgs = listOf(
+            "-isystem",
+            ISYSTEM.path,
+            "-fPIC",
+            "-D__ANDROID_API__=21",
+        ),
     ),
     KonanTarget.ANDROID_X64 to TargetInfo(
         targetName = "x86_64-linux-android",
         sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-x86_64"), ANDROID_SYSROOT_DIR_BASE_1),
-        llvmDir = ANDROID_LLVM_BIN_FOLDER
+        llvmDir = ANDROID_LLVM_BIN_FOLDER,
     ),
     KonanTarget.WASM32 to TargetInfo(
         targetName = "wasm32-unknown-unknown", // "wasm32",
@@ -152,7 +175,7 @@ val targetInfoMap = mapOf(
             "-Xclang",
             "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/compat")}",
             "-Xclang",
-            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/libc")}"
-        )
-    )
+            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/libc")}",
+        ),
+    ),
 )

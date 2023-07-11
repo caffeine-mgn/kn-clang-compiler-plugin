@@ -27,10 +27,10 @@ abstract class BuildStaticTask : DefaultTask() {
         this.target.set(target)
     }
 
-    private var compiles = ArrayList<Compile>()
+    private var compiles = ArrayList<Compile?>()
 
     @get:Internal
-    val sources: List<Compile>
+    val sources: List<Compile?>
         get() = compiles
 
     @get:InputFiles
@@ -101,7 +101,7 @@ abstract class BuildStaticTask : DefaultTask() {
         include(
             *includes.mapNotNull {
                 project.fileAnyWay(it)
-            }.toTypedArray()
+            }.toTypedArray(),
         )
     }
 
@@ -110,7 +110,7 @@ abstract class BuildStaticTask : DefaultTask() {
         sourceDir: File,
         objectDir: File = nativeObjDir,
         args: List<String>? = null,
-        filter: ((File) -> Boolean)? = null
+        filter: ((File) -> Boolean)? = null,
     ) {
         sourceDir.list()?.forEach {
             val f = sourceDir.resolve(it)
@@ -119,7 +119,7 @@ abstract class BuildStaticTask : DefaultTask() {
                     compileFile(
                         source = f,
                         args = args,
-                        objectDir = objectDir
+                        objectDir = objectDir,
                     )
                 }
             }
@@ -129,7 +129,7 @@ abstract class BuildStaticTask : DefaultTask() {
                     sourceDir = f,
                     objectDir = objectDir.resolve(it),
                     args = args,
-                    filter = filter
+                    filter = filter,
                 )
             }
         }
@@ -143,14 +143,14 @@ abstract class BuildStaticTask : DefaultTask() {
             Compile(
                 source = source,
                 objectFile = outFile,
-                args = args
-            )
+                args = args,
+            ),
         )
         inputs.file(source)
         outputs.file(outFile)
     }
 
-    private class CompileResult(val source: File, val code: Int, val result: String)
+    private class CompileResult(val source: File, val c: CppCompiler.CompileResult)
 
     private fun getKonanCompileVersion() =
         if (konanVersion.isPresent) {
@@ -191,9 +191,20 @@ abstract class BuildStaticTask : DefaultTask() {
 
         Konan.checkSysrootInstalled(version = getKonanCompileVersion(), target = selectedTarget)
         val konan = KonanVersion.getVersion(getKonanCompileVersion())
-        val targetInfo = konan.getTargetInfo(selectedTarget)
+        val compiller = konan.getCppCompiler(selectedTarget)
+        val linker = konan.getLinked(selectedTarget)
         fun runCompile(compile: Compile): CompileResult =
             run {
+                val result = compiller.compile(
+                    inputFiles = compile.source,
+                    outputFile = compile.objectFile,
+                    logger = logger,
+                )
+                return CompileResult(
+                    source = compile.source,
+                    c = result,
+                )
+                /*
                 val args = ArrayList<String>()
                 args.add(targetInfo.llvmDir.resolve("clang").executable.absolutePath)
                 args.add("-O${optimizationLevel.get()}")
@@ -223,7 +234,7 @@ abstract class BuildStaticTask : DefaultTask() {
                     args.add("-I${it.absolutePath}")
                 }
                 val builder = ProcessBuilder(
-                    args
+                    args,
                 )
                 logger.info("Executing ${args.joinToString(" ")}")
                 builder.environment().putAll(env)
@@ -242,8 +253,9 @@ abstract class BuildStaticTask : DefaultTask() {
                 CompileResult(
                     code = process.exitValue(),
                     result = stdout.out.toString() + stdin.out.toString(),
-                    source = compile.source
+                    source = compile.source,
                 )
+                */
             }
 
         var threadPool: ExecutorService? = null
@@ -251,7 +263,7 @@ abstract class BuildStaticTask : DefaultTask() {
             threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
         }
         val errorExist = AtomicBoolean(false)
-        val tasks = compiles.mapNotNull {
+        val tasks = compiles.filterNotNull().mapNotNull {
             if (!it.source.isFile) {
                 logger.warn("Compile ${it.source}: Source not found")
                 return@mapNotNull null
@@ -263,16 +275,12 @@ abstract class BuildStaticTask : DefaultTask() {
             Callable {
                 if (!errorExist.get()) {
                     val c = runCompile(it)
-                    if (c.code != 0) {
+                    if (c.c is CppCompiler.CompileResult.Error) {
                         errorExist.set(true)
                     }
                     c
                 } else {
-                    CompileResult(
-                        source = File(""),
-                        code = 1,
-                        result = ""
-                    )
+                    null
                 }
             }
         }
@@ -285,17 +293,27 @@ abstract class BuildStaticTask : DefaultTask() {
             }
         }
 
-        results.forEach {
-            if (it.code != 0) {
+        results.filterNotNull().forEach {
+            val result = it.c
+            if (result is CppCompiler.CompileResult.Error) {
                 println("Compile ${it.source}: FAIL")
+
                 throw GradleScriptException(
                     "Can't build \"${it.source}\".",
                     RuntimeException(
-                        "Output:\n${it.result}"
-                    )
+                        "Output:\n${result.stderr}",
+                    ),
                 )
             }
         }
+
+        linker.static(
+            objectFiles = compiles.filterNotNull().map {
+                it.objectFile
+            },
+            output = staticFile.asFile.get(),
+        )
+        /*
         val ar = targetInfo.llvmDir.resolve("llvm-ar").executable
         if (!ar.isFile) {
             throw RuntimeException("File $ar not found")
@@ -304,12 +322,12 @@ abstract class BuildStaticTask : DefaultTask() {
         args.add(ar.absolutePath)
         args.add("rc")
         args.add(staticFile.asFile.get().absolutePath)
-        compiles.forEach {
+        compiles.filterNotNull().forEach {
             args.add(it.objectFile.absolutePath)
         }
 
         val builder = ProcessBuilder(
-            args
+            args,
         )
         builder.directory(staticFile.asFile.get().parentFile)
         builder.environment().put("PATH", "$HOST_LLVM_BIN_FOLDER;${System.getenv("PATH")}")
@@ -320,9 +338,10 @@ abstract class BuildStaticTask : DefaultTask() {
         if (process.exitValue() != 0) {
             throw GradleScriptException(
                 "Can't execute link static library",
-                RuntimeException("Can't link: Linked returns ${process.exitValue()}")
+                RuntimeException("Can't link: Linked returns ${process.exitValue()}"),
             )
         }
+        */
     }
 }
 

@@ -5,6 +5,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.gradle.api.GradleException
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import pw.binom.kotlin.clang.konan.V1_8_0
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -17,47 +18,22 @@ interface KonanVersion {
         findTargetInfo(target) ?: throw GradleException("Not supported $target")
 
     fun findTargetInfo(target: KonanTarget): TargetInfo?
+    fun findCppCompiler(target: KonanTarget): CppCompiler?
+    fun getCppCompiler(target: KonanTarget) =
+        findCppCompiler(target) ?: throw GradleException("Not supported $target")
 
-    object V1_8_0 : KonanVersion {
-        private val targets = mapOf(
-            KonanTarget.MINGW_X64 to TargetInfo(
-                targetName = "x86_64-pc-windows-gnu",
-                sysRoot = listOf(KONAN_DEPS.resolve("msys2-mingw-w64-x86_64-2")),
-                llvmDir = HOST_LLVM_BIN_FOLDER,
-            ),
-            KonanTarget.MINGW_X86 to TargetInfo(
-                targetName = "i686-w64-mingw32",
-                sysRoot = listOf(KONAN_DEPS.resolve("msys2-mingw-w64-i686-2")),
-                llvmDir = HOST_LLVM_BIN_FOLDER,
-            ),
-            KonanTarget.LINUX_X64 to TargetInfo(
-                targetName = "x86_64-unknown-linux-gnu",
-                sysRoot = listOf(KONAN_DEPS.resolve("$LINUX_X64_SYSROOT/x86_64-unknown-linux-gnu/sysroot")),
-                llvmDir = HOST_LLVM_BIN_FOLDER,
-                clangCompileArgs = listOf("-fPIC"),
-                toolchain = KONAN_DEPS.resolve(LINUX_X64_SYSROOT),
-            ),
-            KonanTarget.LINUX_ARM32_HFP to TargetInfo(
-                targetName = "armv6-unknown-linux-gnueabihf",
-                sysRoot = listOf(KONAN_DEPS.resolve("arm-unknown-linux-gnueabihf-gcc-8.3.0-glibc-2.19-kernel-4.9-2/arm-unknown-linux-gnueabihf/sysroot")),
-                clangCompileArgs = listOf("-mfpu=vfp", "-mfloat-abi=hard"),
-                llvmDir = HOST_LLVM_BIN_FOLDER,
-                toolchain = KONAN_DEPS.resolve("arm-unknown-linux-gnueabihf-gcc-8.3.0-glibc-2.19-kernel-4.9-2"),
-            ),
-            KonanTarget.LINUX_ARM64 to TargetInfo(
-                targetName = "aarch64-unknown-linux-gnu",
-                sysRoot = listOf(KONAN_DEPS.resolve("$LINUX_ARM64/aarch64-unknown-linux-gnu/sysroot")),
-                clangCompileArgs = listOf(/*"-mfpu=vfp", "-mfloat-abi=hard", */"-fPIC"),
-                llvmDir = HOST_LLVM_BIN_FOLDER,
-                toolchain = KONAN_DEPS.resolve(LINUX_ARM64),
-            ),
-        )
-
-        override fun findTargetInfo(target: KonanTarget): TargetInfo? = targets[target]
-    }
+    fun findLinked(target: KonanTarget): Linker?
+    fun getLinked(target: KonanTarget) =
+        findLinked(target) ?: throw GradleException("Not supported $target")
 
     companion object {
-        private val versions = mapOf("1.8.0" to V1_8_0, "1.8.10" to V1_8_0, "1.8.20" to V1_8_0, "1.8.21" to V1_8_0)
+        private val versions = mapOf(
+            "1.8.0" to V1_8_0,
+            "1.8.10" to V1_8_0,
+            "1.8.20" to V1_8_0,
+            "1.8.21" to V1_8_0,
+        )
+
         fun findVersion(version: String) = versions[version]
         fun getVersion(version: String) =
             findVersion(version) ?: throw GradleException("CLang for konan \"$version\" not supported")
@@ -122,7 +98,7 @@ object Konan {
         if (info.sysRoot.all { it.isDirectory }) {
             return
         }
-        println("Please wait while Sysroot ${target.name} is being installed.")
+        println("Please wait while Sysroot ${target.name} is being installed. Exists: ${info.sysRoot.associateWith { it.exists() }}")
         val args = listOf("-target", target.name, TMP_SOURCE_FILE.absolutePath)
         val startArg = when {
             HostManager.hostIsLinux || HostManager.hostIsMac -> listOf(
