@@ -6,10 +6,14 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 
 class CLang(val file: File, val target: KonanTarget, val args: List<String>) : CppCompiler {
-    override fun compile(inputFiles: File, outputFile: File, logger: Logger): CppCompiler.CompileResult {
-        val builder = ProcessBuilder(
-            listOf(file.path) + args + listOf(inputFiles.path, "-o", outputFile.path),
-        )
+    override fun compile(
+        inputFiles: File,
+        outputFile: File,
+        args: List<String>,
+        logger: Logger,
+    ): CppCompiler.CompileResult {
+        val command = listOf(file.path) + this.args + args + listOf(inputFiles.path, "-o", outputFile.path)
+        val builder = ProcessBuilder(command)
 
         val env = HashMap<String, String>()
 

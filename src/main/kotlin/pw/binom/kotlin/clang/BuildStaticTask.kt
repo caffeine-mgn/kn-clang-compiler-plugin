@@ -15,8 +15,6 @@ import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 abstract class BuildStaticTask : DefaultTask() {
     class Compile(val source: File, val objectFile: File, val args: List<String>?)
@@ -199,6 +197,7 @@ abstract class BuildStaticTask : DefaultTask() {
                     inputFiles = compile.source,
                     outputFile = compile.objectFile,
                     logger = logger,
+                    args = compile.args ?: emptyList(),
                 )
                 return CompileResult(
                     source = compile.source,

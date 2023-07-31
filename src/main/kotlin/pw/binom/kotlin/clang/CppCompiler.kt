@@ -18,5 +18,5 @@ interface CppCompiler {
         val isOk: Boolean
     }
 
-    fun compile(inputFiles: File, outputFile: File, logger: Logger): CompileResult
+    fun compile(inputFiles: File, outputFile: File, args: List<String>, logger: Logger): CompileResult
 }
