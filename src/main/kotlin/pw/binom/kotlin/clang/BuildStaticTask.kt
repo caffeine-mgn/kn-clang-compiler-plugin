@@ -197,7 +197,7 @@ abstract class BuildStaticTask : DefaultTask() {
                     inputFiles = compile.source,
                     outputFile = compile.objectFile,
                     logger = logger,
-                    args = compile.args ?: emptyList(),
+                    args = (compile.args ?: emptyList()) + compileArgs,
                 )
                 return CompileResult(
                     source = compile.source,
