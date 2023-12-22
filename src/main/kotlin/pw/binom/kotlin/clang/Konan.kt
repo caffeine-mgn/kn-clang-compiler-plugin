@@ -34,6 +34,7 @@ interface KonanVersion {
             "1.8.21" to V1_8_0,
             "1.9.20" to V1_8_0,
             "1.9.21" to V1_8_0,
+            "1.9.22" to V1_8_0,
         )
 
         fun findVersion(version: String) = versions[version]
