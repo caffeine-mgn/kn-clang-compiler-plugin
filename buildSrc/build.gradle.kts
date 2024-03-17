@@ -1,26 +1,26 @@
 buildscript {
-    val kotlinVersion = properties.get("kotlin.version") as String
     repositories {
         mavenLocal()
         mavenCentral()
+        gradlePluginPortal()
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23")
     }
 }
 
 plugins {
-    kotlin("jvm") version "1.8.21"
+    kotlin("jvm") version "1.9.23"
 }
 
-val kotlinVersion = project.property("kotlin.version") as String
+val kotlinVersion = kotlin.coreLibrariesVersion
 
 repositories {
     mavenLocal()
-    mavenCentral()
     maven(url = "https://repo.binom.pw")
-    maven(url = "https://plugins.gradle.org/m2/")
+    mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
@@ -28,6 +28,5 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     api("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
     api("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-//    api("org.jetbrains.dokka:dokka-gradle-plugin:1.6.21")
-    api("pw.binom:binom-publish:0.1.8")
+    api("pw.binom:binom-publish:0.1.18")
 }

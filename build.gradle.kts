@@ -4,7 +4,6 @@ plugins {
     kotlin("jvm")
     `java-gradle-plugin`
     `maven-publish`
-    id("org.jmailen.kotlinter")
     id("com.gradle.plugin-publish") version "0.16.0"
 }
 
