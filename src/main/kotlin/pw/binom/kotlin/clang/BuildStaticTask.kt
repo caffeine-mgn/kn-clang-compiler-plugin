@@ -83,7 +83,7 @@ abstract class BuildStaticTask : DefaultTask() {
         if (objectDirectory.isPresent) {
             objectDirectory.asFile.get()
         } else {
-            project.buildDir.resolve("native").resolve(name).resolve("obj").resolve(selectedTarget.name)
+            project.layout.buildDirectory.file("native/$name/obj/${selectedTarget.name}").get().asFile
         }
     }
 

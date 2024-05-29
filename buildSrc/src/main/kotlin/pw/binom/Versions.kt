@@ -1,5 +1,7 @@
 package pw.binom
 
+import BuildConfig
+
 object Versions {
-    val KOTLIN_VERSION = "1.8.0"
+    val KOTLIN_VERSION = BuildConfig.KOTLIN_VERSION
 }

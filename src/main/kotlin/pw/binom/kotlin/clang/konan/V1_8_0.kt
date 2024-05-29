@@ -7,8 +7,10 @@ import java.io.File
 
 abstract class BaseKonanVersion : KonanVersion {
     private val exe = if (HostManager.hostIsMingw) ".exe" else ""
+    private val arch = System.getProperty("os.arch")
     val HOST_KONAN_LLVM_DIR_NAME = when {
         HostManager.hostIsLinux -> "llvm-11.1.0-linux-x64-essentials"
+        HostManager.hostIsMac && arch == "aarch64" -> "apple-llvm-20200714-macos-aarch64-essentials"
         HostManager.hostIsMac -> "apple-llvm-20200714-macos-x64-essentials"
         HostManager.hostIsMingw -> "llvm-11.1.0-windows-x64-essentials"
         else -> error("Unknown host OS")
@@ -21,11 +23,12 @@ abstract class BaseKonanVersion : KonanVersion {
     }
     val KONAN_DATA_FOLDER = File(System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan")
     val DEPENDENCIES_FOLDER = KONAN_DATA_FOLDER.resolve("dependencies")
-    val LLVM_BIN_FOLDER = DEPENDENCIES_FOLDER.resolve("$HOST_KONAN_LLVM_DIR_NAME/bin/clang$exe")
+    val LLVM_BIN = DEPENDENCIES_FOLDER.resolve("$HOST_KONAN_LLVM_DIR_NAME/bin/clang$exe")
     val LLVM_AR_BIN_FOLDER = DEPENDENCIES_FOLDER.resolve("$HOST_KONAN_LLVM_DIR_NAME/bin/llvm-ar$exe")
+    val optimizeLevel = 2
 
     private val androidArm32 = listOf(
-        "-O2",
+        "-O$optimizeLevel",
         "-fexceptions",
         "-isystem",
         "$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/lib/clang/11.1.0/include",
@@ -61,7 +64,7 @@ arm-unknown-linux-androideabi
      */
 
     private val androidArm64 = listOf(
-        "-O2",
+        "-O$optimizeLevel",
         "-fexceptions",
         "-isystem",
         "$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/lib/clang/11.1.0/include",
@@ -78,7 +81,7 @@ arm-unknown-linux-androideabi
     )
 
     private val androidX64 = listOf(
-        "-O2",
+        "-O$optimizeLevel",
         "-fexceptions",
         "-isystem",
         "$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/lib/clang/11.1.0/include",
@@ -95,7 +98,7 @@ arm-unknown-linux-androideabi
     )
 
     private val androidX86 = listOf(
-        "-O2",
+        "-O$optimizeLevel",
         "-fexceptions",
         "-isystem", "$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/lib/clang/11.1.0/include",
         "-B$DEPENDENCIES_FOLDER/$ANDROID_TOOLCHAIN_DIR_NAME/bin",
@@ -112,7 +115,7 @@ arm-unknown-linux-androideabi
     )
 
     private val linuxArm64 = listOf(
-        "-O2",
+        "-O$optimizeLevel",
         "-fexceptions",
         "-isystem",
         "$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/lib/clang/11.1.0/include",
@@ -126,7 +129,7 @@ arm-unknown-linux-androideabi
     )
 
     private val linuxX64 = listOf(
-        "-O2",
+        "-O$optimizeLevel",
         "-fexceptions",
         "-isystem",
         "$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/lib/clang/11.1.0/include",
@@ -140,7 +143,7 @@ arm-unknown-linux-androideabi
     )
 
     val mingwX64 = listOf(
-        "-O2",
+        "-O$optimizeLevel",
         "-fexceptions",
         "-isystem",
         "$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/lib/clang/11.1.0/include",
@@ -149,6 +152,26 @@ arm-unknown-linux-androideabi
         "-target",
         "x86_64-pc-windows-gnu",
         "--sysroot=$DEPENDENCIES_FOLDER/msys2-mingw-w64-x86_64-2",
+    )
+    val maxOsArm64 = listOf(
+        "-O$optimizeLevel",
+        "-fexceptions",
+        "-isystem",
+        "$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/lib/clang/11.1.0/include",
+        "-B$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/bin",
+        "-fno-stack-protector",
+        "-target",
+        "arm64-apple-darwin20.1.0"
+    )
+    val maxOsX64 = listOf(
+        "-O$optimizeLevel",
+        "-fexceptions",
+        "-isystem",
+        "$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/lib/clang/11.1.0/include",
+        "-B$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/bin",
+        "-fno-stack-protector",
+        "-target",
+        "x86_64-apple-macos13",
     )
 
     fun getClangArgs(target: KonanTarget) =
@@ -160,6 +183,8 @@ arm-unknown-linux-androideabi
             KonanTarget.LINUX_ARM64 -> linuxArm64
             KonanTarget.LINUX_X64 -> linuxX64
             KonanTarget.MINGW_X64 -> mingwX64
+            KonanTarget.MACOS_ARM64 -> maxOsArm64
+            KonanTarget.MACOS_X64 -> maxOsX64
             else -> null
         }
 
@@ -168,7 +193,7 @@ arm-unknown-linux-androideabi
         val args = getClangArgs(target) ?: return null
         return clangs.getOrPut(target) {
             CLang(
-                file = LLVM_BIN_FOLDER,
+                file = LLVM_BIN,
                 args = args + listOf("-c"),
                 target = target,
             )
@@ -190,17 +215,17 @@ object V1_8_0 : BaseKonanVersion() {
         KonanTarget.MINGW_X64 to TargetInfo(
             targetName = "x86_64-pc-windows-gnu",
             sysRoot = listOf(DEPENDENCIES_FOLDER.resolve("msys2-mingw-w64-x86_64-2")),
-            llvmDir = LLVM_BIN_FOLDER,
+            llvmDir = LLVM_BIN,
         ),
         KonanTarget.MINGW_X86 to TargetInfo(
             targetName = "i686-w64-mingw32",
             sysRoot = listOf(DEPENDENCIES_FOLDER.resolve("msys2-mingw-w64-i686-2")),
-            llvmDir = LLVM_BIN_FOLDER,
+            llvmDir = LLVM_BIN,
         ),
         KonanTarget.LINUX_X64 to TargetInfo(
             targetName = "x86_64-unknown-linux-gnu",
             sysRoot = listOf(DEPENDENCIES_FOLDER.resolve("$LINUX_X64_SYSROOT/x86_64-unknown-linux-gnu/sysroot")),
-            llvmDir = LLVM_BIN_FOLDER,
+            llvmDir = LLVM_BIN,
             clangCompileArgs = listOf("-fPIC"),
             toolchain = DEPENDENCIES_FOLDER.resolve(LINUX_X64_SYSROOT),
         ),
@@ -208,14 +233,14 @@ object V1_8_0 : BaseKonanVersion() {
             targetName = "armv6-unknown-linux-gnueabihf",
             sysRoot = listOf(DEPENDENCIES_FOLDER.resolve("arm-unknown-linux-gnueabihf-gcc-8.3.0-glibc-2.19-kernel-4.9-2/arm-unknown-linux-gnueabihf/sysroot")),
             clangCompileArgs = listOf("-mfpu=vfp", "-mfloat-abi=hard"),
-            llvmDir = LLVM_BIN_FOLDER,
+            llvmDir = LLVM_BIN,
             toolchain = DEPENDENCIES_FOLDER.resolve("arm-unknown-linux-gnueabihf-gcc-8.3.0-glibc-2.19-kernel-4.9-2"),
         ),
         KonanTarget.LINUX_ARM64 to TargetInfo(
             targetName = "aarch64-unknown-linux-gnu",
             sysRoot = listOf(DEPENDENCIES_FOLDER.resolve("$LINUX_ARM64/aarch64-unknown-linux-gnu/sysroot")),
             clangCompileArgs = listOf(/*"-mfpu=vfp", "-mfloat-abi=hard", */"-fPIC"),
-            llvmDir = LLVM_BIN_FOLDER,
+            llvmDir = LLVM_BIN,
             toolchain = DEPENDENCIES_FOLDER.resolve(LINUX_ARM64),
         ),
     )

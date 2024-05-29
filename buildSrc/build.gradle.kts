@@ -12,9 +12,15 @@ buildscript {
 
 plugins {
     kotlin("jvm") version "1.9.24"
+    id("com.github.gmazzo.buildconfig") version "3.0.3"
 }
 
 val kotlinVersion = kotlin.coreLibrariesVersion
+
+buildConfig {
+    packageName(project.group.toString())
+    buildConfigField("String", "KOTLIN_VERSION", "\"$kotlinVersion\"")
+}
 
 repositories {
     mavenLocal()
