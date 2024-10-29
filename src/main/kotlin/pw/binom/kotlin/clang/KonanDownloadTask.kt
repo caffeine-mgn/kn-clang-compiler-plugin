@@ -17,9 +17,9 @@ abstract class KonanDownloadTask : DefaultTask() {
 
     private fun getKonanCompileVersion() =
         if (konanVersion.isPresent) {
-            konanVersion.get()
+            Version(konanVersion.get())
         } else {
-            KotlinVersion.CURRENT.toString()
+            Version(KotlinVersion.CURRENT.toString())
         }
 
     @TaskAction

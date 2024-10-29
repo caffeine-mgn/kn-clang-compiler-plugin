@@ -6,12 +6,12 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21")
     }
 }
 
 plugins {
-    kotlin("jvm") version "1.9.24"
+    kotlin("jvm") version "2.0.21"
     id("com.github.gmazzo.buildconfig") version "3.0.3"
 }
 

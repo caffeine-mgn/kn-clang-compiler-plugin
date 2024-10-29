@@ -217,11 +217,11 @@ object V1_8_0 : BaseKonanVersion() {
             sysRoot = listOf(DEPENDENCIES_FOLDER.resolve("msys2-mingw-w64-x86_64-2")),
             llvmDir = LLVM_BIN,
         ),
-        KonanTarget.MINGW_X86 to TargetInfo(
-            targetName = "i686-w64-mingw32",
-            sysRoot = listOf(DEPENDENCIES_FOLDER.resolve("msys2-mingw-w64-i686-2")),
-            llvmDir = LLVM_BIN,
-        ),
+//        KonanTarget.MINGW_X86 to TargetInfo(
+//            targetName = "i686-w64-mingw32",
+//            sysRoot = listOf(DEPENDENCIES_FOLDER.resolve("msys2-mingw-w64-i686-2")),
+//            llvmDir = LLVM_BIN,
+//        ),
         KonanTarget.LINUX_X64 to TargetInfo(
             targetName = "x86_64-unknown-linux-gnu",
             sysRoot = listOf(DEPENDENCIES_FOLDER.resolve("$LINUX_X64_SYSROOT/x86_64-unknown-linux-gnu/sysroot")),

@@ -41,6 +41,7 @@ dependencies {
     api(gradleApi())
     api("org.jetbrains.kotlin:kotlin-gradle-plugin:${pw.binom.Versions.KOTLIN_VERSION}")
     implementation("org.apache.commons:commons-compress:1.21")
+    testImplementation(kotlin("test"))
 }
 
 //apply<pw.binom.plugins.DocsPlugin>()
@@ -71,6 +72,10 @@ tasks {
         dependsOn("dokkaJavadoc")
         archiveClassifier.set("javadoc")
         from(javadoc)
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }
 publishing {

@@ -42,7 +42,7 @@ private val ANDROID_KONAN_LLVM_DIR_NAME = when {
 private val ANDROID_SYSROOT_DIR_BASE_1 = KONAN_DEPS.resolve(ANDROID_KONAN_LLVM_DIR_NAME).resolve("sysroot")
 private val ANDROID_SYSROOT_DIR_TARGETS_2 = KONAN_DEPS.resolve("target-sysroot-1-android_ndk").resolve("android-21")
 
-fun PREBUILD_KONAN_DIR_NAME(version: String) = when {
+fun PREBUILD_KONAN_DIR_NAME(version: Version) = when {
     HostManager.hostIsLinux -> "kotlin-native-prebuilt-linux-x86_64-$version"
     HostManager.hostIsMac && System.getProperty("os.arch") == "aarch64" -> "kotlin-native-macos-aarch64-$version"
     HostManager.hostIsMac -> "kotlin-native-prebuilt-macos-x86_64-$version"
@@ -84,17 +84,17 @@ val targetInfoMap = mapOf(
         sysRoot = listOf(KONAN_DEPS.resolve("msys2-mingw-w64-x86_64-2")),
         llvmDir = HOST_LLVM_BIN_FOLDER,
     ),
-    KonanTarget.MINGW_X86 to TargetInfo(
-        targetName = "i686-w64-mingw32",
-        sysRoot = listOf(KONAN_DEPS.resolve(MINGW_X86_SYSROOT)),
-        llvmDir = HOST_LLVM_BIN_FOLDER,
-    ),
-    KonanTarget.LINUX_MIPSEL32 to TargetInfo(
-        targetName = "mipsel-unknown-linux-gnu",
-        sysRoot = listOf(KONAN_DEPS.resolve("target-sysroot-2-mipsel")),
-        clangCompileArgs = listOf("-mfpu=vfp", "-mfloat-abi=hard"),
-        llvmDir = HOST_LLVM_BIN_FOLDER,
-    ),
+//    KonanTarget.MINGW_X86 to TargetInfo(
+//        targetName = "i686-w64-mingw32",
+//        sysRoot = listOf(KONAN_DEPS.resolve(MINGW_X86_SYSROOT)),
+//        llvmDir = HOST_LLVM_BIN_FOLDER,
+//    ),
+//    KonanTarget.LINUX_MIPSEL32 to TargetInfo(
+//        targetName = "mipsel-unknown-linux-gnu",
+//        sysRoot = listOf(KONAN_DEPS.resolve("target-sysroot-2-mipsel")),
+//        clangCompileArgs = listOf("-mfpu=vfp", "-mfloat-abi=hard"),
+//        llvmDir = HOST_LLVM_BIN_FOLDER,
+//    ),
     KonanTarget.LINUX_ARM32_HFP to TargetInfo(
         targetName = "armv6-unknown-linux-gnueabihf",
         sysRoot = listOf(KONAN_DEPS.resolve("arm-unknown-linux-gnueabihf-gcc-8.3.0-glibc-2.19-kernel-4.9-2/arm-unknown-linux-gnueabihf/sysroot")),
@@ -151,31 +151,31 @@ val targetInfoMap = mapOf(
         sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-x86_64"), ANDROID_SYSROOT_DIR_BASE_1),
         llvmDir = ANDROID_LLVM_BIN_FOLDER,
     ),
-    KonanTarget.WASM32 to TargetInfo(
-        targetName = "wasm32-unknown-unknown", // "wasm32",
-        sysRoot = listOf(KONAN_DEPS.resolve(WASM32_SYSROOT_NAME)),
-        llvmDir = HOST_LLVM_BIN_FOLDER,
-        clangCompileArgs = listOf(
-            "-fPIC",
-            "-fno-rtti",
-            "-fvisibility=default",
-            "-D_LIBCPP_ABI_VERSION=2",
-            "-D_LIBCPP_NO_EXCEPTIONS=1",
-            "-nostdinc",
-            "-Xclang",
-            "-nobuiltininc",
-            "-Xclang",
-            "-nostdsysteminc",
-            "-BC" + KONAN_DEPS.resolve(WASM32_TOOL_CHAIN_NAME).resolve("bin").absolutePath,
-            "-isystem${KONAN_DEPS.resolve(HOST_KONAN_LLVM_DIR_NAME)}/lib/clang/11.1.0/include",
-            "-Xclang",
-            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/libcxx")}",
-            "-Xclang",
-            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("lib/libcxxabi/include")}",
-            "-Xclang",
-            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/compat")}",
-            "-Xclang",
-            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/libc")}",
-        ),
-    ),
+//    KonanTarget.WASM32 to TargetInfo(
+//        targetName = "wasm32-unknown-unknown", // "wasm32",
+//        sysRoot = listOf(KONAN_DEPS.resolve(WASM32_SYSROOT_NAME)),
+//        llvmDir = HOST_LLVM_BIN_FOLDER,
+//        clangCompileArgs = listOf(
+//            "-fPIC",
+//            "-fno-rtti",
+//            "-fvisibility=default",
+//            "-D_LIBCPP_ABI_VERSION=2",
+//            "-D_LIBCPP_NO_EXCEPTIONS=1",
+//            "-nostdinc",
+//            "-Xclang",
+//            "-nobuiltininc",
+//            "-Xclang",
+//            "-nostdsysteminc",
+//            "-BC" + KONAN_DEPS.resolve(WASM32_TOOL_CHAIN_NAME).resolve("bin").absolutePath,
+//            "-isystem${KONAN_DEPS.resolve(HOST_KONAN_LLVM_DIR_NAME)}/lib/clang/11.1.0/include",
+//            "-Xclang",
+//            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/libcxx")}",
+//            "-Xclang",
+//            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("lib/libcxxabi/include")}",
+//            "-Xclang",
+//            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/compat")}",
+//            "-Xclang",
+//            "-isystem${KONAN_DEPS.resolve(WASM32_SYSROOT_NAME).resolve("include/libc")}",
+//        ),
+//    ),
 )

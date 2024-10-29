@@ -28,19 +28,23 @@ interface KonanVersion {
 
     companion object {
         private val versions = mapOf(
-            "1.8.0" to V1_8_0,
-            "1.8.10" to V1_8_0,
-            "1.8.20" to V1_8_0,
-            "1.8.21" to V1_8_0,
-            "1.9.20" to V1_8_0,
-            "1.9.21" to V1_8_0,
-            "1.9.22" to V1_8_0,
-            "1.9.23" to V1_8_0,
-            "1.9.24" to V1_8_0,
+            KotlinVersions.V1_8_0 to V1_8_0,
+            KotlinVersions.V1_8_10 to V1_8_0,
+            KotlinVersions.V1_8_20 to V1_8_0,
+            KotlinVersions.V1_8_21 to V1_8_0,
+            KotlinVersions.V1_9_20 to V1_8_0,
+            KotlinVersions.V1_9_21 to V1_8_0,
+            KotlinVersions.V1_9_22 to V1_8_0,
+            KotlinVersions.V1_9_23 to V1_8_0,
+            KotlinVersions.V1_9_24 to V1_8_0,
+            KotlinVersions.V1_9_25 to V1_8_0,
+            KotlinVersions.V2_0_10 to V1_8_0,
+            KotlinVersions.V2_0_20 to V1_8_0,
+            KotlinVersions.V2_0_21 to V1_8_0,
         )
 
-        fun findVersion(version: String) = versions[version]
-        fun getVersion(version: String) =
+        fun findVersion(version: Version) = versions[version]
+        fun getVersion(version: Version) =
             findVersion(version) ?: throw GradleException("CLang for konan \"$version\" not supported")
     }
 }
@@ -53,9 +57,9 @@ object Konan {
         file
     }
 
-    private fun prebuildDir(version: String) = KONAN_USER_DIR.resolve(PREBUILD_KONAN_DIR_NAME(version = version))
+    private fun prebuildDir(version: Version) = KONAN_USER_DIR.resolve(PREBUILD_KONAN_DIR_NAME(version = version))
 
-    fun KONAN_EXE_PATH(version: String): File {
+    fun KONAN_EXE_PATH(version: Version): File {
         val binFolder = prebuildDir(version).resolve("bin")
         return if (HostManager.hostIsMingw) {
             binFolder.resolve("kotlinc-native.bat")
@@ -64,17 +68,22 @@ object Konan {
         }
     }
 
-    fun checkKonanInstalled(version: String) {
+    fun checkKonanInstalled(version: Version) {
         if (prebuildDir(version).isDirectory) {
             return
         }
         println("Please wait while Kotlin/Native compiler $version is being installed.")
         val arch = System.getProperty("os.arch")
+        val prebuild = if (KotlinVersions.V2_0_10 >= version) {
+            "-prebuilt"
+        } else {
+            ""
+        }
         val url = when {
-            HostManager.hostIsLinux -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native-linux-x86_64-$version.tar.gz"
-            HostManager.hostIsMac && arch == "aarch64" -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native-macos-aarch64-$version.tar.gz"
-            HostManager.hostIsMac -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native-macos-x86_64-$version.tar.gz"
-            HostManager.hostIsMingw -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native-windows-x86_64-$version.zip"
+            HostManager.hostIsLinux -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native$prebuild-linux-x86_64-$version.tar.gz"
+            HostManager.hostIsMac && arch == "aarch64" -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native$prebuild-macos-aarch64-$version.tar.gz"
+            HostManager.hostIsMac -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native$prebuild-macos-x86_64-$version.tar.gz"
+            HostManager.hostIsMingw -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native$prebuild-windows-x86_64-$version.zip"
             else -> throw RuntimeException("Unsupported host ${HostManager.hostOs()}:${HostManager.hostArch()}")
         }
         println("Getting Konan from Url \"$url\"")
@@ -97,7 +106,7 @@ object Konan {
         }
     }
 
-    fun checkSysrootInstalled(version: String, target: KonanTarget) {
+    fun checkSysrootInstalled(version: Version, target: KonanTarget) {
         checkKonanInstalled(version = version)
         val info = targetInfoMap[target] ?: throw RuntimeException("Target \"${target.name}\" not supported")
         if (info.sysRoot.all { it.isDirectory }) {
