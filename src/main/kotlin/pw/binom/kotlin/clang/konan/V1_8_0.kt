@@ -161,7 +161,15 @@ arm-unknown-linux-androideabi
         "-B$DEPENDENCIES_FOLDER/$HOST_KONAN_LLVM_DIR_NAME/bin",
         "-fno-stack-protector",
         "-target",
-        "arm64-apple-darwin20.1.0"
+        "arm64-apple-darwin23.4.0",
+//        "-I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include",
+//        "-I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include",
+//        "-I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
+        "-isystem",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include",
+        "-isystem",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/malloc",
+
     )
     val maxOsX64 = listOf(
         "-O$optimizeLevel",
@@ -172,6 +180,7 @@ arm-unknown-linux-androideabi
         "-fno-stack-protector",
         "-target",
         "x86_64-apple-macos13",
+        "-I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include",
     )
 
     fun getClangArgs(target: KonanTarget) =

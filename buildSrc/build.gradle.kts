@@ -34,5 +34,5 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     api("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
     api("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-    api("pw.binom:binom-publish:0.1.18")
+    api("pw.binom:binom-publish:0.1.20")
 }

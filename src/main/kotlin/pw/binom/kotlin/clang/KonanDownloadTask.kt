@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+import org.gradle.util.internal.VersionNumber
 
 /**
  * Tasks for execute [Konan.checkKonanInstalled]
@@ -17,9 +18,9 @@ abstract class KonanDownloadTask : DefaultTask() {
 
     private fun getKonanCompileVersion() =
         if (konanVersion.isPresent) {
-            Version(konanVersion.get())
+            VersionNumber.parse(konanVersion.get())
         } else {
-            Version(KotlinVersion.CURRENT.toString())
+            VersionNumber.parse(KotlinVersion.CURRENT.toString())
         }
 
     @TaskAction

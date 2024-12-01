@@ -1,5 +1,6 @@
 package pw.binom.kotlin.clang
 
+import org.gradle.util.internal.VersionNumber
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
@@ -42,9 +43,9 @@ private val ANDROID_KONAN_LLVM_DIR_NAME = when {
 private val ANDROID_SYSROOT_DIR_BASE_1 = KONAN_DEPS.resolve(ANDROID_KONAN_LLVM_DIR_NAME).resolve("sysroot")
 private val ANDROID_SYSROOT_DIR_TARGETS_2 = KONAN_DEPS.resolve("target-sysroot-1-android_ndk").resolve("android-21")
 
-fun PREBUILD_KONAN_DIR_NAME(version: Version) = when {
+fun PREBUILD_KONAN_DIR_NAME(version: VersionNumber) = when {
     HostManager.hostIsLinux -> "kotlin-native-prebuilt-linux-x86_64-$version"
-    HostManager.hostIsMac && System.getProperty("os.arch") == "aarch64" -> "kotlin-native-macos-aarch64-$version"
+    HostManager.hostIsMac && System.getProperty("os.arch") == "aarch64" -> "kotlin-native-prebuilt-macos-aarch64-$version"
     HostManager.hostIsMac -> "kotlin-native-prebuilt-macos-x86_64-$version"
     HostManager.hostIsMingw -> "kotlin-native-prebuilt-windows-x86_64-$version"
     else -> error("Unknown host OS")
@@ -115,6 +116,16 @@ val targetInfoMap = mapOf(
         llvmDir = ANDROID_LLVM_BIN_FOLDER,
     ),
     KonanTarget.ANDROID_ARM64 to TargetInfo(
+        targetName = "aarch64-linux-android",
+        sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-arm64"), ANDROID_SYSROOT_DIR_BASE_1),
+        llvmDir = ANDROID_LLVM_BIN_FOLDER,
+    ),
+    KonanTarget.MACOS_ARM64 to TargetInfo(
+        targetName = "aarch64-linux-android",
+        sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-arm64"), ANDROID_SYSROOT_DIR_BASE_1),
+        llvmDir = ANDROID_LLVM_BIN_FOLDER,
+    ),
+    KonanTarget.MACOS_X64 to TargetInfo(
         targetName = "aarch64-linux-android",
         sysRoot = listOf(ANDROID_SYSROOT_DIR_TARGETS_2.resolve("arch-arm64"), ANDROID_SYSROOT_DIR_BASE_1),
         llvmDir = ANDROID_LLVM_BIN_FOLDER,

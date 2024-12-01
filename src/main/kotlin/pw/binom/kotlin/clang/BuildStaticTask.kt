@@ -7,6 +7,7 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.gradle.util.internal.VersionNumber
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -152,9 +153,9 @@ abstract class BuildStaticTask : DefaultTask() {
 
     private fun getKonanCompileVersion() =
         if (konanVersion.isPresent) {
-            Version(konanVersion.get())
+            VersionNumber.parse(konanVersion.get())
         } else {
-            Version(KotlinVersion.CURRENT.toString())
+            VersionNumber.parse(KotlinVersion.CURRENT.toString())
         }
 
     @TaskAction

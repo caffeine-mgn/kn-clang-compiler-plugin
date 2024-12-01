@@ -3,6 +3,7 @@ package pw.binom.kotlin.clang
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.gradle.api.GradleException
+import org.gradle.util.internal.VersionNumber
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import pw.binom.kotlin.clang.konan.V1_8_0
@@ -41,10 +42,11 @@ interface KonanVersion {
             KotlinVersions.V2_0_10 to V1_8_0,
             KotlinVersions.V2_0_20 to V1_8_0,
             KotlinVersions.V2_0_21 to V1_8_0,
+            KotlinVersions.V2_1_0 to V1_8_0,
         )
 
-        fun findVersion(version: Version) = versions[version]
-        fun getVersion(version: Version) =
+        fun findVersion(version: VersionNumber) = versions[version]
+        fun getVersion(version: VersionNumber) =
             findVersion(version) ?: throw GradleException("CLang for konan \"$version\" not supported")
     }
 }
@@ -57,9 +59,9 @@ object Konan {
         file
     }
 
-    private fun prebuildDir(version: Version) = KONAN_USER_DIR.resolve(PREBUILD_KONAN_DIR_NAME(version = version))
+    private fun prebuildDir(version: VersionNumber) = KONAN_USER_DIR.resolve(PREBUILD_KONAN_DIR_NAME(version = version))
 
-    fun KONAN_EXE_PATH(version: Version): File {
+    fun KONAN_EXE_PATH(version: VersionNumber): File {
         val binFolder = prebuildDir(version).resolve("bin")
         return if (HostManager.hostIsMingw) {
             binFolder.resolve("kotlinc-native.bat")
@@ -68,7 +70,7 @@ object Konan {
         }
     }
 
-    fun checkKonanInstalled(version: Version) {
+    fun checkKonanInstalled(version: VersionNumber) {
         if (prebuildDir(version).isDirectory) {
             return
         }
@@ -106,7 +108,7 @@ object Konan {
         }
     }
 
-    fun checkSysrootInstalled(version: Version, target: KonanTarget) {
+    fun checkSysrootInstalled(version: VersionNumber, target: KonanTarget) {
         checkKonanInstalled(version = version)
         val info = targetInfoMap[target] ?: throw RuntimeException("Target \"${target.name}\" not supported")
         if (info.sysRoot.all { it.isDirectory }) {
