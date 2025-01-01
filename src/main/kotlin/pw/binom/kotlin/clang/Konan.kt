@@ -42,6 +42,7 @@ interface KonanVersion {
             KotlinVersions.V2_0_10 to V1_8_0,
             KotlinVersions.V2_0_20 to V1_8_0,
             KotlinVersions.V2_0_21 to V1_8_0,
+            KotlinVersions.V2_0_22 to V1_8_0,
             KotlinVersions.V2_1_0 to V1_8_0,
         )
 

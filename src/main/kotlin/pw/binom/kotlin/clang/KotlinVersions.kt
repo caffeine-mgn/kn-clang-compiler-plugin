@@ -16,5 +16,6 @@ object KotlinVersions {
     val V2_0_10 = VersionNumber.parse("2.0.10")
     val V2_0_20 = VersionNumber.parse("2.0.20")
     val V2_0_21 = VersionNumber.parse("2.0.21")
+    val V2_0_22 = VersionNumber.parse("2.0.22")
     val V2_1_0 = VersionNumber.parse("2.1.0")
 }
