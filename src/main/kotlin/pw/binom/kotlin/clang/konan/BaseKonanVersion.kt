@@ -25,7 +25,7 @@ abstract class BaseKonanVersion : KonanVersion {
                 HostManager.hostIsLinux -> "llvm-16.0.0-x86_64-linux-essentials-80"
                 HostManager.hostIsMac && arch == "aarch64" -> "apple-llvm-20200714-macos-aarch64-essentials"
                 HostManager.hostIsMac -> "apple-llvm-20200714-macos-x64-essentials"
-                HostManager.hostIsMingw -> "llvm-16.0.0-x86_64-linux-essentials-80"
+                HostManager.hostIsMingw -> "llvm-16.0.0-x86_64-windows-essentials-56"
                 else -> error("Unknown host OS")
             }
     }
