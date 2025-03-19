@@ -5,14 +5,14 @@ import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 
-class CLang(val file: File, val target: KonanTarget, val args: List<String>) : CppCompiler {
+class CLang(val clangFile: File, val target: KonanTarget, val args: List<String>) : CppCompiler {
     override fun compile(
         inputFiles: File,
         outputFile: File,
         args: List<String>,
         logger: Logger,
     ): CppCompiler.CompileResult {
-        val command = listOf(file.path) + this.args + args + listOf(inputFiles.path, "-o", outputFile.path)
+        val command = listOf(clangFile.path) + this.args + args + listOf(inputFiles.path, "-o", outputFile.path)
         val builder = ProcessBuilder(command)
 
         val env = HashMap<String, String>()
@@ -21,12 +21,6 @@ class CLang(val file: File, val target: KonanTarget, val args: List<String>) : C
             env["CPATH"] =
                 "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include"
         }
-
-//        val osPathSeparator = if (HostManager.hostIsMingw) {
-//            ';'
-//        } else {
-//            ':'
-//        }
 
         env["PATH"] = "$HOST_LLVM_BIN_FOLDER${HostManager.pathSeparator}${System.getenv("PATH")}"
 
@@ -49,6 +43,7 @@ class CLang(val file: File, val target: KonanTarget, val args: List<String>) : C
             exitCode = process.exitValue(),
             stdout = stdout.out.toString(),
             stderr = stderr.out.toString(),
+            cmd = command,
         )
     }
 }

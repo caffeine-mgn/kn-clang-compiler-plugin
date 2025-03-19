@@ -7,6 +7,7 @@ import org.gradle.util.internal.VersionNumber
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import pw.binom.kotlin.clang.konan.V1_8_0
+import pw.binom.kotlin.clang.konan.V2_1_0
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -19,6 +20,8 @@ interface KonanVersion {
         findTargetInfo(target) ?: throw GradleException("Not supported $target")
 
     fun findTargetInfo(target: KonanTarget): TargetInfo?
+    fun sysRoot(target: KonanTarget): String?
+    fun gccToolchain(target: KonanTarget): String?
     fun findCppCompiler(target: KonanTarget): CppCompiler?
     fun getCppCompiler(target: KonanTarget) =
         findCppCompiler(target) ?: throw GradleException("Not supported $target")
@@ -43,7 +46,7 @@ interface KonanVersion {
             KotlinVersions.V2_0_20 to V1_8_0,
             KotlinVersions.V2_0_21 to V1_8_0,
             KotlinVersions.V2_0_22 to V1_8_0,
-            KotlinVersions.V2_1_0 to V1_8_0,
+            KotlinVersions.V2_1_0 to V2_1_0,
         )
 
         fun findVersion(version: VersionNumber) = versions[version]

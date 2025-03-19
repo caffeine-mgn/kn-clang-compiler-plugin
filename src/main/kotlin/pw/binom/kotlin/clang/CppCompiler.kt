@@ -10,7 +10,12 @@ interface CppCompiler {
                 get() = true
         }
 
-        class Error(val exitCode: Int, val stdout: String, val stderr: String) : CompileResult {
+        class Error(
+            val exitCode: Int,
+            val stdout: String,
+            val stderr: String,
+            val cmd: List<String>,
+        ) : CompileResult {
             override val isOk: Boolean
                 get() = false
         }
