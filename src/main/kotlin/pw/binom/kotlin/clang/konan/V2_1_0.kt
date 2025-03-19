@@ -1,16 +1,16 @@
 package pw.binom.kotlin.clang.konan
 
-import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import pw.binom.kotlin.clang.*
-import java.io.File
 
 
 // -Wno-builtin-macro-redefined
 
 object V2_1_0 : BaseKonanVersion() {
     override val HOST_KONAN_LLVM_DIR_NAME: String
-        get() = HOST_KONAN_LLVM11_DIR_NAME
+        get() = HOST_KONAN_LLVM16_DIR_NAME
+    override val LLVM_VERSION: String
+        get() = "16"
     private val targets = mapOf(
         KonanTarget.MINGW_X64 to TargetInfo(
             targetName = "x86_64-pc-windows-gnu",
