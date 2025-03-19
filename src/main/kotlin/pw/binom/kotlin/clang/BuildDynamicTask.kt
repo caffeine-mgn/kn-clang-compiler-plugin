@@ -2,6 +2,7 @@ package pw.binom.kotlin.clang
 
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -9,7 +10,14 @@ import org.jetbrains.kotlin.konan.target.HostManager
 abstract class BuildDynamicTask : BuildTask() {
 
     @get:OutputFile
-    abstract val staticFile: RegularFileProperty
+    abstract val dynamicFile: RegularFileProperty
+
+    @get:Input
+    val linkArgs = ArrayList<String>()
+
+    fun linkArgs(vararg args: String) {
+        linkArgs += args.toList()
+    }
 
     @TaskAction
     fun execute() {
@@ -17,7 +25,7 @@ abstract class BuildDynamicTask : BuildTask() {
             logger.warn("Compile target ${target.get()} not supported on host ${HostManager.host.name}")
             return
         }
-        if (!staticFile.isPresent) {
+        if (!dynamicFile.isPresent) {
             throw InvalidUserDataException("Static output file not set")
         }
         compileAll()
@@ -26,11 +34,12 @@ abstract class BuildDynamicTask : BuildTask() {
         val konan = KonanVersion.getVersion(getKonanCompileVersion())
         val linker = konan.getLinked(selectedTarget)
 
-        linker.static(
+        linker.dynamic(
             objectFiles = compiles.filterNotNull().map {
                 it.objectFile
             },
-            output = staticFile.asFile.get(),
+            output = dynamicFile.asFile.get(),
+            linkArgs = linkArgs,
         )
     }
 }
