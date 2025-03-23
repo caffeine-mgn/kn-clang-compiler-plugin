@@ -15,12 +15,18 @@ class CLangLinker(
     val konanVersion: KonanVersion,
 ) : Linker {
     override fun static(objectFiles: List<File>, output: File) {
+        val args = listOf(arFile.path, "rc", output.path) + objectFiles.map { it.path } + args
         val builder = ProcessBuilder(
-            listOf(arFile.path, "rc", output.path) + objectFiles.map { it.path } + args,
+            args
         )
         builder.directory(output.parentFile)
-        builder.environment().put("PATH", "${arFile.parentFile.path};${System.getenv("PATH")}")
-        val process = builder.start()
+        output.parentFile.mkdirs()
+//        builder.environment()["PATH"] = "${arFile.parentFile.path.replace("\\", "\\\\")};${System.getenv("PATH")}"
+        val process = try {
+            builder.start()
+        } catch (e: Throwable) {
+            throw GradleScriptException("Can't run ${args.joinToString(" ")}", e)
+        }
         StreamGobblerAppendable(process.inputStream, System.out, false).start()
         StreamGobblerAppendable(process.errorStream, System.err, false).start()
         process.waitFor()
@@ -30,6 +36,7 @@ class CLangLinker(
                 RuntimeException("Can't link: Linked returns ${process.exitValue()}"),
             )
         }
+
     }
 
     override fun dynamic(objectFiles: List<File>, output: File, linkArgs: List<String>) {
