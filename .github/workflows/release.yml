@@ -1,4 +1,4 @@
-name: Release to Maven Central
+name: Release to Maven Central & Gradle Plugin Portal
 
 on:
   push:
@@ -38,10 +38,12 @@ jobs:
           echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
           gpgconf --reload gpg-agent
 
-      - name: Publish to Maven Central
+      - name: Publish to Maven Central and Gradle Plugin Portal
         env:
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
           GPG_PASSWORD: ${{ secrets.GPG_PASSWORD }}
+          GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
+          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
         run: |
           OVERRIDE="${{ github.event.inputs.version }}"
           if [ -n "$OVERRIDE" ]; then
@@ -49,7 +51,7 @@ jobs:
           else
             VERSION_FLAG=""
           fi
-          ./gradlew publishToMavenCentral \
+          ./gradlew publishToMavenCentral publishPlugins \
             $VERSION_FLAG \
             -PsigningUseGpg=true \
             -Psigning.gnupg.keyName="$GPG_KEY_ID" \
