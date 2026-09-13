@@ -83,6 +83,8 @@ mavenPublishing {
 // by `com.gradle.plugin-publish`.
 afterEvaluate {
     publishing.publications.removeIf { it.name.endsWith("PluginMarkerMaven") }
+    tasks.matching { it.name.contains("PluginMarker") && (it.name.startsWith("publish") || it.name.startsWith("sign") || it.name.startsWith("generate")) }
+        .configureEach { this.enabled = false }
 }
 
 tasks {
