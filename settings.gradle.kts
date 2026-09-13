@@ -1,8 +1,7 @@
 pluginManagement {
     repositories {
-        mavenCentral()
-        maven(url = "https://repo.binom.pw")
         gradlePluginPortal()
+        mavenCentral()
     }
 }
 rootProject.name = "kn-clang"

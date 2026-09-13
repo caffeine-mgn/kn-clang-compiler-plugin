@@ -4,19 +4,16 @@ plugins {
     kotlin("jvm")
     `java-gradle-plugin`
     `maven-publish`
+    id("org.jetbrains.dokka") version "2.0.0"
     id("com.gradle.plugin-publish") version "2.2.1"
-}
-
-apply {
-    plugin<org.jetbrains.dokka.gradle.DokkaPlugin>()
+    id("com.vanniktech.maven.publish") version "0.33.0"
 }
 
 allprojects {
-    version = System.getenv("GITHUB_REF_NAME") ?: "1.0.0-SNAPSHOT"
+    version = System.getenv("GITHUB_REF_NAME")?.removePrefix("v") ?: (findProperty("version") as String? ?: "1.0.0-SNAPSHOT")
     group = "pw.binom"
 
     repositories {
-        mavenLocal()
         mavenCentral()
     }
 }
@@ -41,10 +38,36 @@ gradlePlugin {
     }
 }
 
-val javadocJar = tasks.register<Jar>("javadocJar") {
-    dependsOn("dokkaJavadoc")
-    archiveClassifier.set("javadoc")
-    from("dokkaJavadoc")
+mavenPublishing {
+    publishToMavenCentral(automaticRelease = true)
+    signAllPublications()
+    coordinates(
+        groupId = "pw.binom",
+        artifactId = "kn-clang-compiler-plugin",
+        version = project.version.toString()
+    )
+    pom {
+        name.set(PublishInfo.NAME)
+        description.set(PublishInfo.DESCRIPTION)
+        url.set(PublishInfo.HTTP_PATH_TO_PROJECT)
+        scm {
+            connection.set(PublishInfo.GIT_PATH_TO_PROJECT)
+            url.set(PublishInfo.HTTP_PATH_TO_PROJECT)
+        }
+        developers {
+            developer {
+                id.set("subochev")
+                name.set("Anton Subochev")
+                email.set("caffeine.mgn@gmail.com")
+            }
+        }
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+    }
 }
 
 tasks {
@@ -52,19 +75,3 @@ tasks {
         useJUnitPlatform()
     }
 }
-publishing {
-    publications {
-        val sources = tasks.getByName("kotlinSourcesJar")
-        val docs = tasks.getByName("javadocJar")
-        create<MavenPublication>("KnClang") {
-            groupId = project.group.toString()
-            artifactId = project.name
-            version = project.version.toString()
-            from(components["kotlin"])
-            artifact(sources)
-            artifact(docs)
-        }
-    }
-}
-
-apply<pw.binom.publish.plugins.PrepareProject>()

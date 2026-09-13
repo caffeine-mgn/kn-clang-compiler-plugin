@@ -23,8 +23,6 @@ buildConfig {
 }
 
 repositories {
-    mavenLocal()
-    maven(url = "https://repo.binom.pw")
     mavenCentral()
     gradlePluginPortal()
 }
@@ -33,6 +31,4 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     api("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     api("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
-    api("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-    api("pw.binom:binom-publish:0.1.20")
 }
