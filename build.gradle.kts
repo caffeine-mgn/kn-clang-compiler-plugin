@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm")
     `java-gradle-plugin`
     `maven-publish`
+    signing
     id("org.jetbrains.dokka") version "2.0.0"
     id("com.gradle.plugin-publish") version "2.2.1"
     id("com.vanniktech.maven.publish") version "0.33.0"
@@ -35,6 +36,12 @@ gradlePlugin {
             implementationClass = "pw.binom.kotlin.clang.ClangPlugin"
             description = "Kotlin-Native Clang"
         }
+    }
+}
+
+if (findProperty("signingUseGpg") == "true") {
+    signing {
+        useGpgCmd()
     }
 }
 
