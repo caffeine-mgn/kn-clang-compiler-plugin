@@ -16,12 +16,13 @@ Kotlin/Native version does not require updating the plugin.
 
 ### Installation
 
-The plugin is published to Maven Central as `pw.binom:kn-clang-compiler-plugin`. Add it to
-your build script:
+The plugin is published to **Maven Central** (`pw.binom:kn-clang-compiler-plugin`) and to
+the **Gradle Plugin Portal** under id `pw.binom.kn-clang`. Either repository works; the
+shortest form uses the default `pluginManagement.repositories` (which includes both):
 
 ```kotlin
 plugins {
-    id("kn-clang") version "0.0.3"
+    id("pw.binom.kn-clang") version "0.0.4"
 }
 ```
 
@@ -42,10 +43,10 @@ Or via the version catalog (`gradle/libs.versions.toml`):
 
 ```toml
 [versions]
-kn-clang = "0.0.3"
+kn-clang = "0.0.4"
 
 [plugins]
-kn-clang = { id = "kn-clang", version.ref = "kn-clang" }
+kn-clang = { id = "pw.binom.kn-clang", version.ref = "kn-clang" }
 ```
 
 ```kotlin
@@ -88,7 +89,7 @@ int add(int a, int b) { return a + b; }
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("kn-clang") version "0.0.3"
+    id("pw.binom.kn-clang") version "0.0.4"
 }
 
 knClang {
@@ -156,7 +157,7 @@ tasks fetch it into `~/.konan` on demand.
 
 ```kotlin
 plugins {
-    id("kn-clang") version "0.0.3"
+    id("pw.binom.kn-clang") version "0.0.4"
 }
 
 knClang {
@@ -172,7 +173,7 @@ A single build task can override it with `konanVersion.set(...)` inside its conf
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("kn-clang") version "0.0.3"
+    id("pw.binom.kn-clang") version "0.0.4"
 }
 
 knClang {

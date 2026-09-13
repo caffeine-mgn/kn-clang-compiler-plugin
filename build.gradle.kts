@@ -31,8 +31,8 @@ gradlePlugin {
     vcsUrl = PublishInfo.GIT_PATH_TO_PROJECT
     description = PublishInfo.DESCRIPTION
     plugins {
-        create("kn-clang") {
-            id = "kn-clang"
+        create("pw.binom.kn-clang") {
+            id = "pw.binom.kn-clang"
             implementationClass = "pw.binom.kotlin.clang.ClangPlugin"
             description = "Kotlin-Native Clang"
         }
@@ -75,16 +75,6 @@ mavenPublishing {
             }
         }
     }
-}
-
-// The plugin marker publication uses `kn-clang` as its group id, which we are not
-// authorized to publish under on Maven Central. Drop it here so vanniktech only
-// publishes `pluginMaven`. The marker is still published to the Gradle Plugin Portal
-// by `com.gradle.plugin-publish`.
-afterEvaluate {
-    publishing.publications.removeIf { it.name.endsWith("PluginMarkerMaven") }
-    tasks.matching { it.name.contains("PluginMarker") && (it.name.startsWith("publish") || it.name.startsWith("sign") || it.name.startsWith("generate")) }
-        .configureEach { this.enabled = false }
 }
 
 tasks {

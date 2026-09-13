@@ -16,12 +16,13 @@
 
 ### Установка
 
-Плагин опубликован в Maven Central под координатами `pw.binom:kn-clang-compiler-plugin`.
-Подключается так:
+Плагин публикуется в **Maven Central** (`pw.binom:kn-clang-compiler-plugin`) и в
+**Gradle Plugin Portal** под id `pw.binom.kn-clang`. Любой из репозиториев подойдёт;
+самая короткая форма использует дефолтный `pluginManagement.repositories` (включает оба):
 
 ```kotlin
 plugins {
-    id("kn-clang") version "0.0.3"
+    id("pw.binom.kn-clang") version "0.0.4"
 }
 ```
 
@@ -43,10 +44,10 @@ pluginManagement {
 
 ```toml
 [versions]
-kn-clang = "0.0.3"
+kn-clang = "0.0.4"
 
 [plugins]
-kn-clang = { id = "kn-clang", version.ref = "kn-clang" }
+kn-clang = { id = "pw.binom.kn-clang", version.ref = "kn-clang" }
 ```
 
 ```kotlin
@@ -89,7 +90,7 @@ int add(int a, int b) { return a + b; }
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("kn-clang") version "0.0.3"
+    id("pw.binom.kn-clang") version "0.0.4"
 }
 
 knClang {
@@ -157,7 +158,7 @@ clangBuildDynamic {
 
 ```kotlin
 plugins {
-    id("kn-clang") version "0.0.3"
+    id("pw.binom.kn-clang") version "0.0.4"
 }
 
 knClang {
@@ -174,7 +175,7 @@ knClang {
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("kn-clang") version "0.0.3"
+    id("pw.binom.kn-clang") version "0.0.4"
 }
 
 knClang {
