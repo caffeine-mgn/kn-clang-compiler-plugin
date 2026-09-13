@@ -28,12 +28,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Import GPG key
+      - name: Import GPG key into keyring
         env:
-          GPG_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSWORD }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSWORD: ${{ secrets.GPG_PASSWORD }}
         run: |
-          printf '%b' "$GPG_KEY" | gpg --batch --import
+          printf '%b' "$GPG_PRIVATE_KEY" | gpg --batch --pinentry-mode loopback --passphrase "$GPG_PASSWORD" --import
           echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
           echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
           gpgconf --reload gpg-agent
@@ -41,7 +41,7 @@ jobs:
       - name: Publish to Maven Central
         env:
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSWORD }}
+          GPG_PASSWORD: ${{ secrets.GPG_PASSWORD }}
         run: |
           OVERRIDE="${{ github.event.inputs.version }}"
           if [ -n "$OVERRIDE" ]; then
@@ -53,6 +53,6 @@ jobs:
             $VERSION_FLAG \
             -PsigningUseGpg=true \
             -Psigning.gnupg.keyName="$GPG_KEY_ID" \
-            -Psigning.gnupg.passphrase="$GPG_PASSPHRASE" \
+            -Psigning.gnupg.passphrase="$GPG_PASSWORD" \
             -PmavenCentralUsername=${{ secrets.MAVEN_CENTRAL_USERNAME }} \
             -PmavenCentralPassword=${{ secrets.MAVEN_CENTRAL_PASSWORD }}
