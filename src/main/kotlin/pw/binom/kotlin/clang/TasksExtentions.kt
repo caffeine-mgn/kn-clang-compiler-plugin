@@ -10,7 +10,7 @@ val KotlinNativeLink.targetKonan
     get() = binary.target.konanTarget
 
 val KotlinNativeTarget.compileTaskName
-    get() = "compileKotlin${name.capitalize()}"
+    get() = "compileKotlin${name.replaceFirstChar { c -> c.uppercase() }}"
 
 fun KotlinMultiplatformExtension.eachNative(func: KotlinNativeTarget.() -> Unit) {
     this.targets.forEach {

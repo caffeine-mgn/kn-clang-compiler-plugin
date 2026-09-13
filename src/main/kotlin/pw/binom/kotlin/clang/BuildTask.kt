@@ -8,6 +8,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.util.internal.VersionNumber
+import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
@@ -16,6 +17,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
+@DisableCachingByDefault(because = "Invokes external Clang compiler, not safe to cache")
 abstract class BuildTask : DefaultTask() {
     data class Compile(val source: File, val objectFile: File, val args: List<String>?)
 
@@ -136,7 +138,7 @@ abstract class BuildTask : DefaultTask() {
     @JvmOverloads
     fun compileFile(source: File, objectDir: File? = null, args: List<String>? = null) {
         val newObjectDir = objectDir ?: nativeObjDir
-        val outFile = newObjectDir.resolve("${source.nameWithoutExtension}.o")
+        val outFile = newObjectDir.resolve("${source.name}.o")
         compiles.add(
             Compile(
                 source = source,
@@ -159,7 +161,7 @@ abstract class BuildTask : DefaultTask() {
         if (konanVersion.isPresent) {
             VersionNumber.parse(konanVersion.get())
         } else {
-            VersionNumber.parse(KotlinVersion.CURRENT.toString())
+            KotlinVersions.V2_4_20
         }
 
     protected fun compileAll() {
@@ -169,12 +171,13 @@ abstract class BuildTask : DefaultTask() {
         if (!HostManager().isEnabled(selectedTarget)) {
             throw StopActionException("Target ${selectedTarget.name} not supported")
         }
-        if (!TargetSupport.isTargetSupport(selectedTarget)) {
+        if (!TargetSupport.isTargetConfigured(selectedTarget, getKonanCompileVersion())) {
             throw IllegalArgumentException("Target ${selectedTarget.name} is not supported")
         }
 
         Konan.checkSysrootInstalled(version = getKonanCompileVersion(), target = selectedTarget)
 
+        val konan = KonanVersion.getVersion(getKonanCompileVersion())
         val env = HashMap<String, String>()
         if (HostManager.hostIsMac && selectedTarget == KonanTarget.MACOS_X64) {
             env["CPATH"] =
@@ -185,9 +188,8 @@ abstract class BuildTask : DefaultTask() {
         } else {
             ':'
         }
-        env["PATH"] = "$HOST_LLVM_BIN_FOLDER$osPathSeparator${System.getenv("PATH")}"
+        env["PATH"] = "${konan.HOST_LLVM_BIN_FOLDER}$osPathSeparator${System.getenv("PATH")}"
 
-        val konan = KonanVersion.getVersion(getKonanCompileVersion())
         val compiller = konan.getCppCompiler(selectedTarget)
 
         fun runCompile(compile: Compile): CompileResult =

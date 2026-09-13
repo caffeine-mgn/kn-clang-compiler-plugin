@@ -1,13 +1,14 @@
 package pw.binom
 
-import org.gradle.api.Project
 import java.io.ByteArrayOutputStream
 
-fun Project.getGitBranch(): String {
+fun getGitBranch(): String {
     val stdout = ByteArrayOutputStream()
-    exec {
-        it.commandLine("git", "rev-parse", "--abbrev-ref", "HEAD")
-        it.standardOutput = stdout
-    }
+    val process = ProcessBuilder("git", "rev-parse", "--abbrev-ref", "HEAD")
+        .redirectErrorStream(false)
+        .redirectOutput(ProcessBuilder.Redirect.PIPE)
+        .start()
+    process.inputStream.use { stdout.write(it.readBytes()) }
+    process.waitFor()
     return stdout.toString().trim()
 }

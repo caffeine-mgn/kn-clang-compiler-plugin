@@ -5,7 +5,12 @@ import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.File
 
-class CLang(val clangFile: File, val target: KonanTarget, val args: List<String>) : CppCompiler {
+class CLang(
+    val clangFile: File,
+    val target: KonanTarget,
+    val args: List<String>,
+    private val llvmBinFolder: File,
+) : CppCompiler {
     override fun compile(
         inputFiles: File,
         outputFile: File,
@@ -22,7 +27,7 @@ class CLang(val clangFile: File, val target: KonanTarget, val args: List<String>
                 "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include"
         }
 
-        env["PATH"] = "$HOST_LLVM_BIN_FOLDER${HostManager.pathSeparator}${System.getenv("PATH")}"
+        env["PATH"] = "$llvmBinFolder${HostManager.pathSeparator}${System.getenv("PATH")}"
 
         builder.environment().putAll(env)
         val process = builder.start()

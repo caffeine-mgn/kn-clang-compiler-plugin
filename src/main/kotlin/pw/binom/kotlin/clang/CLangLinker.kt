@@ -13,6 +13,7 @@ class CLangLinker(
     val target: KonanTarget,
     val args: List<String>,
     val konanVersion: KonanVersion,
+    val useNdkClang: Boolean = false,
 ) : Linker {
 
     private class BuildStaticContextImpl : BuildStaticContext {
@@ -163,21 +164,32 @@ class CLangLinker(
         }
         val sysRoot = konanVersion.sysRoot(target)
         val gccToolchain = konanVersion.gccToolchain(target)
-        if (sysRoot != null) {
-            addArgs += "--sysroot=$sysRoot"
+        if (!useNdkClang) {
+            if (sysRoot != null) {
+                addArgs += "--sysroot=$sysRoot"
+            }
+            if (gccToolchain != null) {
+                addArgs += "--gcc-toolchain=$gccToolchain"
+            }
         }
-        if (gccToolchain != null) {
-            addArgs += "--gcc-toolchain=$gccToolchain"
+        val commands = if (useNdkClang) {
+            listOf(
+                clangFile.path,
+                sharedArg,
+                "-o",
+                output.absolutePath,
+            ) + args + linkArgs + addArgs + objectFiles.map { it.absolutePath }
+        } else {
+            listOf(
+                clangFile.path,
+                "-fuse-ld=lld",
+                sharedArg,
+                "-o",
+                output.absolutePath,
+                "-target",
+                target.clangTarget,
+            ) + args + linkArgs + addArgs + objectFiles.map { it.absolutePath }
         }
-        val commands = listOf(
-            clangFile.path,
-            "-fuse-ld=lld",
-            sharedArg,
-            "-o",
-            output.absolutePath,
-            "-target",
-            target.clangTarget,
-        ) + args + linkArgs + addArgs + objectFiles.map { it.absolutePath }
         println("Linking shared lib with cmd: $commands")
         val builder = ProcessBuilder(
             commands,

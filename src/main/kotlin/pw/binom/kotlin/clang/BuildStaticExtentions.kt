@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.konan.target.presetName
 
+@Suppress("DEPRECATION", "DEPRECATION_ERROR")
 fun AbstractKotlinNativeCompilation.addStatic(vararg files: Any?) {
     val args = ArrayList<String>(files.size * 2 + kotlinOptions.freeCompilerArgs.size)
     kotlinOptions.freeCompilerArgs.forEach {
@@ -23,10 +24,11 @@ fun AbstractKotlinNativeCompilation.addStatic(vararg files: Any?) {
 fun Project.clangBuildStatic(
     target: KonanTarget = HostManager.host,
     name: String = "native",
-    taskName: String = "buildStatic${name.capitalize()}${target.presetName.capitalize()}",
+    taskName: String = "buildStatic${name.replaceFirstChar { c -> c.uppercase() }}${target.presetName.replaceFirstChar { c -> c.uppercase() }}",
     config: BuildStaticTask.() -> Unit
 ): BuildStaticTask {
     val task = tasks.register(taskName, BuildStaticTask::class.java).get()
+    task.konanVersion.convention(extensions.getByType(KnClangExtension::class.java).konanVersion)
     task.target.set(target)
     task.target.finalizeValue()
     task.debugEnabled.set(false)
@@ -40,7 +42,7 @@ fun Project.clangBuildStatic(
             .resolve("static")
             .resolve("lib$name.a")
     )
-    task.onlyIf { TargetSupport.isKonancTargetSupportOnHost(target) }
+    task.onlyIf { TargetSupport.isKonanTargetEnabledOnHost(target) }
     task.config()
     return task
 }
@@ -48,10 +50,11 @@ fun Project.clangBuildStatic(
 fun Project.clangBuildDynamic(
     target: KonanTarget = HostManager.host,
     name: String = "native",
-    taskName: String = "buildDynamic${name.capitalize()}${target.presetName.capitalize()}",
+    taskName: String = "buildDynamic${name.replaceFirstChar { c -> c.uppercase() }}${target.presetName.replaceFirstChar { c -> c.uppercase() }}",
     config: BuildDynamicTask.() -> Unit
 ): BuildDynamicTask {
     val task = tasks.register(taskName, BuildDynamicTask::class.java).get()
+    task.konanVersion.convention(extensions.getByType(KnClangExtension::class.java).konanVersion)
     task.target.set(target)
     task.target.finalizeValue()
     task.debugEnabled.set(false)
@@ -75,7 +78,7 @@ fun Project.clangBuildDynamic(
             .resolve("dynamic")
             .resolve("$name.$ext")
     )
-    task.onlyIf { TargetSupport.isKonancTargetSupportOnHost(target) }
+    task.onlyIf { TargetSupport.isKonanTargetEnabledOnHost(target) }
     task.config()
     return task
 }

@@ -4,7 +4,7 @@ plugins {
     kotlin("jvm")
     `java-gradle-plugin`
     `maven-publish`
-    id("com.gradle.plugin-publish") version "0.16.0"
+    id("com.gradle.plugin-publish") version "2.2.1"
 }
 
 apply {
@@ -20,22 +20,6 @@ allprojects {
         mavenCentral()
     }
 }
-// tasks {
-//    val kotlinSourcesJar by getting {
-//    }
-// //    val sourcesJar by creating(Jar::class) {
-// //        dependsOn(JavaPlugin.CLASSES_TASK_NAME)
-// //        archiveClassifier.set("sources")
-// //        from(kotlin.sourceSets["main"].kotlin)
-// // //        from(sourceSets["main"].allSource)
-// //    }
-// //    artifacts {
-// ////        this.sourceArtifacts(sourcesJar)
-// //        add("archives", kotlinSourcesJar)
-// ////        add("archives", )
-// ////        add("archives", javadocJar)
-// //    }
-// }
 
 dependencies {
     api(gradleApi())
@@ -44,36 +28,26 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-//apply<pw.binom.plugins.DocsPlugin>()
-
-//kotlinter {
-//    indentSize = 4
-//    disabledRules = arrayOf("no-wildcard-imports")
-//}
 gradlePlugin {
+    website = PublishInfo.HTTP_PATH_TO_PROJECT
+    vcsUrl = PublishInfo.GIT_PATH_TO_PROJECT
+    description = PublishInfo.DESCRIPTION
     plugins {
         create("kn-clang") {
             id = "kn-clang"
             implementationClass = "pw.binom.kotlin.clang.ClangPlugin"
             description = "Kotlin-Native Clang"
-            isAutomatedPublishing = false
         }
     }
 }
-pluginBundle {
-    website = PublishInfo.HTTP_PATH_TO_PROJECT
-    vcsUrl = PublishInfo.GIT_PATH_TO_PROJECT
-    description = PublishInfo.DESCRIPTION
-    tags = listOf("kotlin", "clang", "konan")
+
+val javadocJar = tasks.register<Jar>("javadocJar") {
+    dependsOn("dokkaJavadoc")
+    archiveClassifier.set("javadoc")
+    from("dokkaJavadoc")
 }
 
 tasks {
-    val javadocJar by creating(Jar::class) {
-        dependsOn("dokkaJavadoc")
-        archiveClassifier.set("javadoc")
-        from(javadoc)
-    }
-
     test {
         useJUnitPlatform()
     }

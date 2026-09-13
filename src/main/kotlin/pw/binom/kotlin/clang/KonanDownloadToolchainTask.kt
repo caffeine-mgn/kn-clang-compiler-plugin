@@ -6,8 +6,10 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.internal.VersionNumber
+import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
+@DisableCachingByDefault(because = "Downloads external sysroot/toolchain, not safe to cache")
 abstract class KonanDownloadToolchainTask : DefaultTask() {
     @get:Input
     abstract val target: Property<KonanTarget>
@@ -20,7 +22,7 @@ abstract class KonanDownloadToolchainTask : DefaultTask() {
         if (konanVersion.isPresent) {
             VersionNumber.parse(konanVersion.get())
         } else {
-            VersionNumber.parse(KotlinVersion.CURRENT.toString())
+            KotlinVersions.V2_4_20
         }
 
     @TaskAction

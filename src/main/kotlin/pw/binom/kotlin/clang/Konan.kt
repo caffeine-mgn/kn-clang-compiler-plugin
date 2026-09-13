@@ -6,13 +6,12 @@ import org.gradle.api.GradleException
 import org.gradle.util.internal.VersionNumber
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import pw.binom.kotlin.clang.konan.V1_8_0
-import pw.binom.kotlin.clang.konan.V2_1_0
+import pw.binom.kotlin.clang.konan.BaseKonanVersion
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.util.zip.ZipInputStream
 
 interface KonanVersion {
@@ -30,28 +29,11 @@ interface KonanVersion {
     fun getLinked(target: KonanTarget) =
         findLinked(target) ?: throw GradleException("Not supported $target")
 
-    companion object {
-        private val versions = mapOf(
-            KotlinVersions.V1_8_0 to V1_8_0,
-            KotlinVersions.V1_8_10 to V1_8_0,
-            KotlinVersions.V1_8_20 to V1_8_0,
-            KotlinVersions.V1_8_21 to V1_8_0,
-            KotlinVersions.V1_9_20 to V1_8_0,
-            KotlinVersions.V1_9_21 to V1_8_0,
-            KotlinVersions.V1_9_22 to V1_8_0,
-            KotlinVersions.V1_9_23 to V1_8_0,
-            KotlinVersions.V1_9_24 to V1_8_0,
-            KotlinVersions.V1_9_25 to V1_8_0,
-            KotlinVersions.V2_0_10 to V1_8_0,
-            KotlinVersions.V2_0_20 to V1_8_0,
-            KotlinVersions.V2_0_21 to V1_8_0,
-            KotlinVersions.V2_0_22 to V1_8_0,
-            KotlinVersions.V2_1_0 to V2_1_0,
-        )
+    val HOST_LLVM_BIN_FOLDER: File
 
-        fun findVersion(version: VersionNumber) = versions[version]
-        fun getVersion(version: VersionNumber) =
-            findVersion(version) ?: throw GradleException("CLang for konan \"$version\" not supported")
+    companion object {
+        fun findVersion(version: VersionNumber): KonanVersion = BaseKonanVersion(version)
+        fun getVersion(version: VersionNumber): KonanVersion = findVersion(version)
     }
 }
 
@@ -63,7 +45,8 @@ object Konan {
         file
     }
 
-    private fun prebuildDir(version: VersionNumber) = KONAN_USER_DIR.resolve(PREBUILD_KONAN_DIR_NAME(version = version))
+    private fun prebuildDir(version: VersionNumber) =
+        KONAN_USER_DIR.resolve(PREBUILD_KONAN_DIR_NAME(version = version))
 
     fun KONAN_EXE_PATH(version: VersionNumber): File {
         val binFolder = prebuildDir(version).resolve("bin")
@@ -93,7 +76,7 @@ object Konan {
             else -> throw RuntimeException("Unsupported host ${HostManager.hostOs()}:${HostManager.hostArch()}")
         }
         println("Getting Konan from Url \"$url\"")
-        val connection = URL(url).openConnection() as HttpURLConnection
+        val connection = URI(url).toURL().openConnection() as HttpURLConnection
         try {
             if (connection.responseCode != 200) {
                 throw RuntimeException("Can't download konan from \"$url\". Invalid response code: ${connection.responseCode}")
@@ -114,7 +97,8 @@ object Konan {
 
     fun checkSysrootInstalled(version: VersionNumber, target: KonanTarget) {
         checkKonanInstalled(version = version)
-        val info = targetInfoMap[target] ?: throw RuntimeException("Target \"${target.name}\" not supported")
+        val info = KonanVersion.getVersion(version).findTargetInfo(target)
+            ?: throw RuntimeException("Target \"${target.name}\" not supported")
         if (info.sysRoot.all { it.isDirectory }) {
             return
         }
@@ -130,7 +114,6 @@ object Konan {
             HostManager.hostIsMingw -> listOf("cmd", "/c", KONAN_EXE_PATH(version).absolutePath) + args
             else -> throw RuntimeException("Current platform is not supported")
         }
-//        val konancCmd = (startArg + args).toTypedArray()
         println("Executing $startArg")
         println("in ${TMP_SOURCE_FILE.parentFile}")
         val pb = ProcessBuilder(*startArg.toTypedArray())
@@ -138,6 +121,7 @@ object Konan {
         pb.environment().putAll(System.getenv())
         pb.redirectOutput(ProcessBuilder.Redirect.PIPE)
         pb.redirectError(ProcessBuilder.Redirect.PIPE)
+        pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
         val process = pb.start()
         StreamGobblerAppendable(process.inputStream, dest = System.out, appendNewLine = false).start()
         StreamGobblerAppendable(process.errorStream, dest = System.err, appendNewLine = false).start()

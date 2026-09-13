@@ -5,8 +5,10 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.*
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
+@DisableCachingByDefault(because = "Invokes external linker, not safe to cache")
 abstract class CLangLinkTask : DefaultTask() {
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)

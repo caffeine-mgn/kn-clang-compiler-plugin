@@ -5,8 +5,10 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.konan.target.HostManager
 
+@DisableCachingByDefault(because = "Downloads and invokes external Clang toolchain, not safe to cache")
 abstract class BuildDynamicTask : BuildTask() {
 
     @get:OutputFile
@@ -21,7 +23,7 @@ abstract class BuildDynamicTask : BuildTask() {
 
     @TaskAction
     fun execute() {
-        if (!TargetSupport.isKonancTargetSupportOnHost(target.get())) {
+        if (!TargetSupport.isKonanTargetEnabledOnHost(target.get())) {
             logger.warn("Compile target ${target.get()} not supported on host ${HostManager.host.name}")
             return
         }
