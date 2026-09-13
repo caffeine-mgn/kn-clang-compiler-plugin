@@ -1,8 +1,9 @@
 # Kotlin Native's Clang Compiler Plugin
 
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Maven Central](https://img.shields.io/maven-central/v/pw.binom/kn-clang-compiler-plugin.svg?style=flat)](https://repo1.maven.org/maven2/pw/binom/kn-clang-compiler-plugin/)
 [![Kotlin 2.4.20](https://img.shields.io/badge/Kotlin-2.4.20-blue.svg?style=flat&logo=kotlin)](http://kotlinlang.org)
-[![Gradle build](https://github.com/caffeine-mgn/kn-clang-compiler-plugin/actions/workflows/publish.yml/badge.svg) ](https://github.com/caffeine-mgn/kn-clang-compiler-plugin/actions/workflows/publish.yml) <br><br>
+[![Release to Maven Central](https://github.com/caffeine-mgn/kn-clang-compiler-plugin/actions/workflows/release.yml/badge.svg)](https://github.com/caffeine-mgn/kn-clang-compiler-plugin/actions/workflows/release.yml) <br><br>
 
 This plugin gives you the Clang toolchain that ships with Kotlin/Native and lets you
 compile **C and C++** sources for Kotlin/Native targets from Gradle.
@@ -10,6 +11,105 @@ compile **C and C++** sources for Kotlin/Native targets from Gradle.
 Toolchain locations (LLVM binaries, sysroots, target toolchains) are resolved at runtime
 from the selected Kotlin/Native distribution's `konan.properties`, so switching to another
 Kotlin/Native version does not require updating the plugin.
+
+### Installation
+
+The plugin is published to Maven Central as `pw.binom:kn-clang-compiler-plugin`. Add it to
+your build script:
+
+```kotlin
+plugins {
+    id("kn-clang") version "0.0.3"
+}
+```
+
+Make sure `mavenCentral()` is in `pluginManagement.repositories` (it is by default in new
+Gradle projects). If you override `pluginManagement.repositories`, add it there:
+
+```kotlin
+// settings.gradle.kts
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+```
+
+Or via the version catalog (`gradle/libs.versions.toml`):
+
+```toml
+[versions]
+kn-clang = "0.0.3"
+
+[plugins]
+kn-clang = { id = "kn-clang", version.ref = "kn-clang" }
+```
+
+```kotlin
+// build.gradle.kts
+plugins {
+    alias(libs.plugins.kn.clang)
+}
+```
+
+### Example
+
+Project layout:
+
+```
+myproj/
+├── build.gradle.kts
+└── src/main/c/
+    ├── hello.c
+    └── hello.h
+```
+
+`src/main/c/hello.h`:
+
+```c
+#pragma once
+int add(int a, int b);
+```
+
+`src/main/c/hello.c`:
+
+```c
+#include "hello.h"
+
+int add(int a, int b) { return a + b; }
+```
+
+`build.gradle.kts`:
+
+```kotlin
+import pw.binom.kotlin.clang.*
+
+plugins {
+    id("kn-clang") version "0.0.3"
+}
+
+knClang {
+    konanVersion.set("2.4.20")
+}
+
+clangBuildDynamic {
+    compileDir(file("src/main/c"))
+    include(file("src/main/c"))
+    optimizationLevel(2)
+}
+```
+
+Run:
+
+```sh
+./gradlew buildDynamicLinuxX64
+```
+
+The first run downloads the requested Kotlin/Native distribution into `~/.konan` and the
+target toolchain/sysroot on demand; subsequent builds are incremental. The output is a
+platform-native shared library (`.so` on Linux/Android, `.dylib` on macOS, `.dll` on
+MinGW).
 
 ### Supported targets
 
@@ -54,7 +154,7 @@ tasks fetch it into `~/.konan` on demand.
 
 ```kotlin
 plugins {
-    id("kn-clang")
+    id("kn-clang") version "0.0.3"
 }
 
 knClang {
@@ -70,7 +170,7 @@ A single build task can override it with `konanVersion.set(...)` inside its conf
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("kn-clang")
+    id("kn-clang") version "0.0.3"
 }
 
 knClang {
