@@ -180,9 +180,10 @@ class CLangLinker(
                 output.absolutePath,
             ) + args + linkArgs + addArgs + objectFiles.map { it.absolutePath }
         } else {
+            val ldArg = if (target.family.isAppleFamily) emptyList() else listOf("-fuse-ld=lld")
             listOf(
                 clangFile.path,
-                "-fuse-ld=lld",
+            ) + ldArg + listOf(
                 sharedArg,
                 "-o",
                 output.absolutePath,

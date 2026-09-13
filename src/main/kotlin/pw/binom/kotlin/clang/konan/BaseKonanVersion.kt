@@ -5,6 +5,7 @@ import org.gradle.util.internal.VersionNumber
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import org.jetbrains.kotlin.konan.target.Xcode
 import pw.binom.kotlin.clang.CLang
 import pw.binom.kotlin.clang.CLangLinker
 import pw.binom.kotlin.clang.CppCompiler
@@ -101,10 +102,42 @@ class BaseKonanVersion(val kotlinVersion: VersionNumber) : KonanVersion {
         else -> null
     }
 
+    private fun androidNdkArchDir(target: KonanTarget): String = when (target) {
+        KonanTarget.ANDROID_ARM32 -> "arm-linux-androideabi"
+        KonanTarget.ANDROID_ARM64 -> "aarch64-linux-android"
+        KonanTarget.ANDROID_X86 -> "i686-linux-android"
+        KonanTarget.ANDROID_X64 -> "x86_64-linux-android"
+        else -> error("Unknown Android target: $target")
+    }
+
     private fun androidNdkClang(target: KonanTarget): File? =
         androidNdkTriple(target)?.let { androidNdkDir(target).resolve("bin/$it-clang$exe") }
 
+    /**
+     * Apple SDKs are not downloadable (the `target-sysroot-xcode-*` dependencies are
+     * `remote:internal`), so on a macOS host we use the SDKs from the installed Xcode,
+     * exactly like Kotlin/Native itself does.
+     */
+    @Suppress("DEPRECATION")
+    private fun appleSdkPath(target: KonanTarget): File? {
+        val xcode = runCatching { Xcode.current }.getOrNull() ?: return null
+        val path = when (target) {
+            KonanTarget.MACOS_X64, KonanTarget.MACOS_ARM64 -> xcode.macosxSdk
+            KonanTarget.IOS_ARM64 -> xcode.iphoneosSdk
+            KonanTarget.IOS_X64, KonanTarget.IOS_SIMULATOR_ARM64 -> xcode.iphonesimulatorSdk
+            KonanTarget.TVOS_ARM64 -> xcode.appletvosSdk
+            KonanTarget.TVOS_X64, KonanTarget.TVOS_SIMULATOR_ARM64 -> xcode.appletvsimulatorSdk
+            KonanTarget.WATCHOS_ARM32, KonanTarget.WATCHOS_ARM64 -> xcode.watchosSdk
+            KonanTarget.WATCHOS_X64, KonanTarget.WATCHOS_SIMULATOR_ARM64 -> xcode.watchsimulatorSdk
+            else -> return null
+        }
+        return File(path).takeIf { it.isDirectory }
+    }
+
     private fun sysrootFor(target: KonanTarget): File? {
+        if (HostManager.hostIsMac && target.family.isAppleFamily) {
+            appleSdkPath(target)?.let { return it }
+        }
         val raw = prop("targetSysRoot.${target.name}")
             ?: prop("dependencies.${HOST_TARGET.name}-${target.name}")
                 ?.split("\n", "\\")
@@ -166,14 +199,13 @@ class BaseKonanVersion(val kotlinVersion: VersionNumber) : KonanVersion {
                     "--sysroot=$sr",
                     "-I$ndk/sysroot/usr/include/c++/v1",
                     "-I$ndk/sysroot/usr/include",
-                    "-I$ndk/sysroot/usr/include/$triple",
+                    "-I$ndk/sysroot/usr/include/${androidNdkArchDir(target)}",
                 )
             }
 
             Family.OSX, Family.IOS, Family.TVOS, Family.WATCHOS -> {
                 val sr = sysrootFor(target) ?: return null
                 listOf(
-                    "-isystem", LLVM_INCLUDE_DIR,
                     "-B$HOST_LLVM_BIN_FOLDER",
                     "-fno-stack-protector",
                     "--sysroot=$sr",
