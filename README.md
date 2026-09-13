@@ -26,6 +26,15 @@ plugins {
 }
 ```
 
+Both repositories are populated the moment a release tag is pushed, but the **Gradle Plugin
+Portal** puts every new plugin id into a manual review queue (handled by Gradle engineers).
+Approval of a first-time id typically takes **1–2 business days**; until that lands the
+plugin is fully usable via `mavenCentral()` only. After approval, plain
+`gradlePluginPortal()` is enough and the above snippet works in a freshly-created project.
+
+If you ever see `Plugin [pw.binom.kn-clang] was not found in any of the following sources`
+right after a release, that is the queue — switch to `mavenCentral()` for a day or two.
+
 Make sure `mavenCentral()` is in `pluginManagement.repositories` (it is by default in new
 Gradle projects). If you override `pluginManagement.repositories`, add it there:
 
