@@ -36,6 +36,7 @@ gradlePlugin {
             implementationClass = "pw.binom.kotlin.clang.ClangPlugin"
             displayName = "Kotlin-Native Clang"
             description = "Plugin for compile C and C++ using Konan's Clang"
+            tags = listOf("c", "c++", "clang", "konan", "kotlin-native")
         }
     }
 }
