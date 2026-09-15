@@ -11,7 +11,9 @@ plugins {
 }
 
 allprojects {
-    version = System.getenv("GITHUB_REF_NAME")?.removePrefix("v") ?: (findProperty("version") as String? ?: "1.0.0-SNAPSHOT")
+    version = (findProperty("version") as String?)
+        ?: System.getenv("GITHUB_REF_NAME")?.removePrefix("v")
+        ?: "1.0.0-SNAPSHOT"
     group = "pw.binom"
 
     repositories {
