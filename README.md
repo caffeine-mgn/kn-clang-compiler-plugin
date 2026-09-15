@@ -4,6 +4,7 @@
 
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Maven Central](https://img.shields.io/maven-central/v/pw.binom/kn-clang-compiler-plugin.svg?style=flat)](https://repo1.maven.org/maven2/pw/binom/kn-clang-compiler-plugin/)
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/pw.binom.kn-clang.svg)](https://plugins.gradle.org/plugin/pw.binom.kn-clang)
 [![Kotlin 2.4.20](https://img.shields.io/badge/Kotlin-2.4.20-blue.svg?style=flat&logo=kotlin)](http://kotlinlang.org)
 [![Release to Maven Central](https://github.com/caffeine-mgn/kn-clang-compiler-plugin/actions/workflows/release.yml/badge.svg)](https://github.com/caffeine-mgn/kn-clang-compiler-plugin/actions/workflows/release.yml) <br><br>
 
@@ -26,14 +27,7 @@ plugins {
 }
 ```
 
-Both repositories are populated the moment a release tag is pushed, but the **Gradle Plugin
-Portal** puts every new plugin id into a manual review queue (handled by Gradle engineers).
-Approval of a first-time id typically takes **1–2 business days**; until that lands the
-plugin is fully usable via `mavenCentral()` only. After approval, plain
-`gradlePluginPortal()` is enough and the above snippet works in a freshly-created project.
-
-If you ever see `Plugin [pw.binom.kn-clang] was not found in any of the following sources`
-right after a release, that is the queue — switch to `mavenCentral()` for a day or two.
+> **Heads-up after a new release:** the Plugin Portal catalog index is cached for ~12 hours, so a freshly-published version can take a few hours to show up in `plugins.gradle.org/plugin/...` listings even though the artifact itself is already resolvable via `mavenCentral()` and via `gradlePluginPortal()` (which uses the live repo, not the cached index).
 
 Make sure `mavenCentral()` is in `pluginManagement.repositories` (it is by default in new
 Gradle projects). If you override `pluginManagement.repositories`, add it there:
