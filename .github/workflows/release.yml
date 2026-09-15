@@ -10,6 +10,14 @@ on:
         description: 'Override version (without leading "v")'
         required: false
         default: ''
+      maven_central_only:
+        description: 'Publish only to Maven Central'
+        type: boolean
+        default: false
+      plugin_portal_only:
+        description: 'Publish only to Gradle Plugin Portal (e.g. for resubmitting after approval)'
+        type: boolean
+        default: false
 
 jobs:
   publish:
@@ -46,12 +54,26 @@ jobs:
           GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
         run: |
           OVERRIDE="${{ github.event.inputs.version }}"
+          MAVEN_CENTRAL_ONLY="${{ github.event.inputs.maven_central_only }}"
+          PLUGIN_PORTAL_ONLY="${{ github.event.inputs.plugin_portal_only }}"
           if [ -n "$OVERRIDE" ]; then
             VERSION_FLAG="-Pversion=$OVERRIDE"
           else
             VERSION_FLAG=""
           fi
-          ./gradlew publishToMavenCentral publishPlugins \
+          TASKS=""
+          if [ "$PLUGIN_PORTAL_ONLY" != "true" ]; then
+            TASKS="$TASKS publishToMavenCentral"
+          fi
+          if [ "$MAVEN_CENTRAL_ONLY" != "true" ]; then
+            TASKS="$TASKS publishPlugins"
+          fi
+          if [ -z "$TASKS" ]; then
+            echo "::error::Both maven_central_only and plugin_portal_only are true — nothing to do."
+            exit 1
+          fi
+          echo "Running: ./gradlew $TASKS $VERSION_FLAG"
+          ./gradlew $TASKS \
             $VERSION_FLAG \
             -PsigningUseGpg=true \
             -Psigning.gnupg.keyName="$GPG_KEY_ID" \
