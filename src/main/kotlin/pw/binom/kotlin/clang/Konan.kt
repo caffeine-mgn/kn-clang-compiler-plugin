@@ -63,11 +63,7 @@ object Konan {
         }
         println("Please wait while Kotlin/Native compiler $version is being installed.")
         val arch = System.getProperty("os.arch")
-        val prebuild = if (KotlinVersions.V2_0_10 >= version) {
-            "-prebuilt"
-        } else {
-            ""
-        }
+        val prebuild = "-prebuilt"
         val url = when {
             HostManager.hostIsLinux -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native$prebuild-linux-x86_64-$version.tar.gz"
             HostManager.hostIsMac && arch == "aarch64" -> "https://github.com/JetBrains/kotlin/releases/download/v$version/kotlin-native$prebuild-macos-aarch64-$version.tar.gz"
