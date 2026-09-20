@@ -23,9 +23,10 @@ allprojects {
 
 dependencies {
     api(gradleApi())
-    api("org.jetbrains.kotlin:kotlin-gradle-plugin:${pw.binom.Versions.KOTLIN_VERSION}")
+    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:${pw.binom.Versions.KOTLIN_VERSION}")
     implementation("org.apache.commons:commons-compress:1.21")
     testImplementation(kotlin("test"))
+    testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${pw.binom.Versions.KOTLIN_VERSION}")
 }
 
 gradlePlugin {

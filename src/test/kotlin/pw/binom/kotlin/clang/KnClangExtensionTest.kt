@@ -8,7 +8,7 @@ class KnClangExtensionTest {
     @Test
     fun defaultKonanVersionIs24_20() {
         val project = ProjectBuilder.builder().build()
-        project.plugins.apply("kn-clang")
+        project.plugins.apply("pw.binom.kn-clang")
         val ext = project.extensions.getByType(KnClangExtension::class.java)
         assertEquals("2.4.20", ext.konanVersion.get())
     }
@@ -16,7 +16,7 @@ class KnClangExtensionTest {
     @Test
     fun extensionVersionPropagatesToDownloadKonanTask() {
         val project = ProjectBuilder.builder().build()
-        project.plugins.apply("kn-clang")
+        project.plugins.apply("pw.binom.kn-clang")
         val ext = project.extensions.getByType(KnClangExtension::class.java)
         ext.konanVersion.set("2.3.20")
         val task = project.tasks.named("downloadKonan").get() as KonanDownloadTask
@@ -26,7 +26,7 @@ class KnClangExtensionTest {
     @Test
     fun taskLevelOverrideWinsOverExtension() {
         val project = ProjectBuilder.builder().build()
-        project.plugins.apply("kn-clang")
+        project.plugins.apply("pw.binom.kn-clang")
         val ext = project.extensions.getByType(KnClangExtension::class.java)
         ext.konanVersion.set("2.3.20")
         val task = project.tasks.named("downloadKonan").get() as KonanDownloadTask
