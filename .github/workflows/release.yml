@@ -56,11 +56,9 @@ jobs:
           OVERRIDE="${{ github.event.inputs.version }}"
           MAVEN_CENTRAL_ONLY="${{ github.event.inputs.maven_central_only }}"
           PLUGIN_PORTAL_ONLY="${{ github.event.inputs.plugin_portal_only }}"
-          if [ -n "$OVERRIDE" ]; then
-            VERSION_FLAG="-Pversion=$OVERRIDE"
-          else
-            VERSION_FLAG=""
-          fi
+          VERSION_VALUE="${OVERRIDE:-${{ github.ref_name }}}"
+          VERSION_VALUE="${VERSION_VALUE#v}"
+          VERSION_FLAG="-Pversion=${VERSION_VALUE}"
           TASKS=""
           if [ "$PLUGIN_PORTAL_ONLY" != "true" ]; then
             TASKS="$TASKS publishToMavenCentral"
