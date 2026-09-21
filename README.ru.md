@@ -23,7 +23,7 @@
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.8"
+    id("pw.binom.kn-clang") version "0.0.9"
 }
 ```
 
@@ -50,7 +50,7 @@ pluginManagement {
 
 ```toml
 [versions]
-kn-clang = "0.0.8"
+kn-clang = "0.0.9"
 
 [plugins]
 kn-clang = { id = "pw.binom.kn-clang", version.ref = "kn-clang" }
@@ -62,6 +62,36 @@ plugins {
     alias(libs.plugins.kn.clang)
 }
 ```
+
+### Standalone CLI (`kn-clang-cli`)
+
+В каждом релизе на GitHub также публикуется standalone CLI uber-jar (`kn-clang-cli.jar`) —
+тот же резолв тулчейна, что и в плагине, но доступный из shell-скриптов и внешних систем
+сборки (CMake, Make, autotools, Bazel). Полезно, когда хочется собирать тяжёлые
+third-party C/C++ проекты (onnxruntime, LiteRT, …) на dev-машине без Gradle.
+
+```sh
+# Скачать из GitHub-релиза
+curl -L -o kn-clang-cli.jar \
+  https://github.com/caffeine-mgn/kn-clang-compiler-plugin/releases/latest/download/kn-clang-cli.jar
+
+# Резолв тулчейна для цели (требуется JRE 17+)
+java -jar kn-clang-cli.jar android_arm64 --download --format shell
+# KN_CLANG_COMPILER=/home/.../llvm-21-x86_64-linux-essentials-116/bin/clang
+# KN_CLANG_CXX_COMPILER=/home/.../bin/clang++
+# KN_CLANG_ARCHIVER=/home/.../bin/llvm-ar
+# KN_CLANG_LINKER=/home/.../bin/lld
+# KN_CLANG_SYSROOT=/home/.../target-sysroot-1-android_ndk/android-21/arch-arm64
+# KN_CLANG_CFLAGS=-O2 -target aarch64-unknown-linux-android -fexceptions …
+
+eval "$(java -jar kn-clang-cli.jar android_arm64 --format shell)"
+"$KN_CLANG_CXX_COMPILER" $KN_CLANG_CFLAGS -shared -o libfoo.so foo.cpp
+```
+
+CLI выводит те же `KnClangToolchain`, что и `knClang.toolchain(target)` в плагине, в
+shell- или JSON-дружественном формате. Полные рецепты для CMake/Make — в
+[`building-with-external-tools.md`](building-with-external-tools.md). KMP-нативные сборки
+CLI (linuxX64 / macosArm64 / mingwX64, без JRE) выйдут в 0.1.0.
 
 ### Пример
 
@@ -96,7 +126,7 @@ int add(int a, int b) { return a + b; }
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.8"
+    id("pw.binom.kn-clang") version "0.0.9"
 }
 
 knClang {
@@ -164,7 +194,7 @@ clangBuildDynamic {
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.8"
+    id("pw.binom.kn-clang") version "0.0.9"
 }
 
 knClang {
@@ -181,7 +211,7 @@ knClang {
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.8"
+    id("pw.binom.kn-clang") version "0.0.9"
 }
 
 knClang {

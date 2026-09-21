@@ -1,7 +1,5 @@
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-    }
-}
 rootProject.name = "kn-clang"
+
+include(":kn-clang-core")
+include(":kn-clang")
+include(":kn-clang-cli")

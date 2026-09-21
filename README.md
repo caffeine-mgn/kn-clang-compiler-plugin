@@ -23,7 +23,7 @@ shortest form uses the default `pluginManagement.repositories` (which includes b
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.8"
+    id("pw.binom.kn-clang") version "0.0.9"
 }
 ```
 
@@ -46,7 +46,7 @@ Or via the version catalog (`gradle/libs.versions.toml`):
 
 ```toml
 [versions]
-kn-clang = "0.0.8"
+kn-clang = "0.0.9"
 
 [plugins]
 kn-clang = { id = "pw.binom.kn-clang", version.ref = "kn-clang" }
@@ -58,6 +58,38 @@ plugins {
     alias(libs.plugins.kn.clang)
 }
 ```
+
+### Standalone CLI (`kn-clang-cli`)
+
+Every GitHub release also ships a standalone CLI uber-jar (`kn-clang-cli.jar`) — the same
+toolchain resolution that the plugin uses, callable from shell scripts and external
+build systems (CMake, Make, autotools, Bazel). Useful when you want to cross-compile a
+large third-party C/C++ project (onnxruntime, LiteRT, …) on your dev machine without
+pulling in Gradle.
+
+```sh
+# Download from the GitHub release
+curl -L -o kn-clang-cli.jar \
+  https://github.com/caffeine-mgn/kn-clang-compiler-plugin/releases/latest/download/kn-clang-cli.jar
+
+# Resolve the toolchain for a target (requires JRE 17+)
+java -jar kn-clang-cli.jar android_arm64 --download --format shell
+# KN_CLANG_COMPILER=/home/.../llvm-21-x86_64-linux-essentials-116/bin/clang
+# KN_CLANG_CXX_COMPILER=/home/.../bin/clang++
+# KN_CLANG_ARCHIVER=/home/.../bin/llvm-ar
+# KN_CLANG_LINKER=/home/.../bin/lld
+# KN_CLANG_SYSROOT=/home/.../target-sysroot-1-android_ndk/android-21/arch-arm64
+# KN_CLANG_CFLAGS=-O2 -target aarch64-unknown-linux-android -fexceptions …
+
+eval "$(java -jar kn-clang-cli.jar android_arm64 --format shell)"
+"$KN_CLANG_CXX_COMPILER" $KN_CLANG_CFLAGS -shared -o libfoo.so foo.cpp
+```
+
+The CLI prints the same `KnClangToolchain` data the plugin's `knClang.toolchain(target)`
+returns, in a shell- or JSON-friendly format. See
+[`building-with-external-tools.md`](building-with-external-tools.md) for the full
+CMake/Make recipes. KMP-native builds of the CLI (linuxX64 / macosArm64 / mingwX64, no
+JRE required) are coming in 0.1.0.
 
 ### Example
 
@@ -92,7 +124,7 @@ int add(int a, int b) { return a + b; }
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.8"
+    id("pw.binom.kn-clang") version "0.0.9"
 }
 
 knClang {
@@ -160,7 +192,7 @@ tasks fetch it into `~/.konan` on demand.
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.8"
+    id("pw.binom.kn-clang") version "0.0.9"
 }
 
 knClang {
@@ -176,7 +208,7 @@ A single build task can override it with `konanVersion.set(...)` inside its conf
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.8"
+    id("pw.binom.kn-clang") version "0.0.9"
 }
 
 knClang {
