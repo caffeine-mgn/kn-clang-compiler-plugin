@@ -36,39 +36,10 @@ jobs:
           java-version: 21
           distribution: liberica
 
-      - name: Setup Gradle (no cache — configuration cache from 0.0.8 single-module build is being restored, causing root project to retain old plugin state)
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           cache-disabled: true
-
-      - name: Debug — list init scripts and Gradle user home
-        run: |
-          echo "=== ~/.gradle/init.d ==="
-          ls -la ~/.gradle/init.d 2>/dev/null || echo "(no init.d)"
-          echo "=== init.gradle files in user home ==="
-          find ~/.gradle -name "init.gradle*" -type f 2>/dev/null | head -20
-          echo "=== gradle.properties in user home ==="
-          cat ~/.gradle/gradle.properties 2>/dev/null | head -20 || echo "(no gradle.properties)"
-
-      - name: Debug — root project plugins via projectsLoaded+afterEvaluate
-        run: |
-          cat > /tmp/rdebug.init.gradle << 'INI'
-          gradle.projectsLoaded {
-            rootProject.afterEvaluate {
-              println("RD: root has plugins:")
-              rootProject.plugins.each { println("RD:   " + it.class.name) }
-              println("RD: root has publications:")
-              rootProject.publishing.publications.each { println("RD:   " + it.name + " (" + it.class.name + ")") }
-              println("RD: root has tasks (publish-like):")
-              rootProject.tasks.each { t ->
-                if (t.name.contains('plugin') || t.name.contains('publish') || t.name.contains('Stag') || t.name.contains('sign')) {
-                  println("RD:   " + t.name)
-                }
-              }
-            }
-          }
-          INI
-          ./gradlew :tasks --no-rebuild --init-script /tmp/rdebug.init.gradle 2>&1 | grep "^RD:" | head -40
 
       - name: Import GPG key into keyring
         env:

@@ -23,7 +23,7 @@
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.9"
+    id("pw.binom.kn-clang") version "0.0.10"
 }
 ```
 
@@ -50,7 +50,7 @@ pluginManagement {
 
 ```toml
 [versions]
-kn-clang = "0.0.9"
+kn-clang = "0.0.10"
 
 [plugins]
 kn-clang = { id = "pw.binom.kn-clang", version.ref = "kn-clang" }
@@ -126,7 +126,7 @@ int add(int a, int b) { return a + b; }
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.9"
+    id("pw.binom.kn-clang") version "0.0.10"
 }
 
 knClang {
@@ -194,7 +194,7 @@ clangBuildDynamic {
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.9"
+    id("pw.binom.kn-clang") version "0.0.10"
 }
 
 knClang {
@@ -211,7 +211,7 @@ knClang {
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.9"
+    id("pw.binom.kn-clang") version "0.0.10"
 }
 
 knClang {

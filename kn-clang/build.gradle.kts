@@ -22,6 +22,23 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.KOTLIN_VERSION}")
 }
 
+tasks {
+    jar {
+        from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
+            exclude { details ->
+                details.file.name.startsWith("META-INF") &&
+                    (details.file.name.endsWith(".kotlin_module") ||
+                     details.file.name.endsWith(".SF") ||
+                     details.file.name.endsWith(".RSA"))
+            }
+        }
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+    test {
+        useJUnitPlatform()
+    }
+}
+
 gradlePlugin {
     website = PublishInfo.HTTP_PATH_TO_PROJECT
     vcsUrl = PublishInfo.GIT_PATH_TO_PROJECT
@@ -72,11 +89,5 @@ mavenPublishing {
                 url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
             }
         }
-    }
-}
-
-tasks {
-    test {
-        useJUnitPlatform()
     }
 }
