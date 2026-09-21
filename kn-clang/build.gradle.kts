@@ -23,17 +23,6 @@ dependencies {
 }
 
 tasks {
-    jar {
-        from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
-            exclude { details ->
-                details.file.name.startsWith("META-INF") &&
-                    (details.file.name.endsWith(".kotlin_module") ||
-                     details.file.name.endsWith(".SF") ||
-                     details.file.name.endsWith(".RSA"))
-            }
-        }
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
     test {
         useJUnitPlatform()
     }

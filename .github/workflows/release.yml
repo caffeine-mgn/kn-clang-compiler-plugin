@@ -66,7 +66,7 @@ jobs:
           VERSION_FLAG="-Pversion=${VERSION_VALUE}"
           TASKS=""
           if [ "$PLUGIN_PORTAL_ONLY" != "true" ]; then
-            TASKS="$TASKS :kn-clang:publishToMavenCentral"
+            TASKS="$TASKS :kn-clang-core:publishToMavenCentral :kn-clang:publishToMavenCentral"
           fi
           if [ "$MAVEN_CENTRAL_ONLY" != "true" ]; then
             TASKS="$TASKS :kn-clang:publishPlugins"
