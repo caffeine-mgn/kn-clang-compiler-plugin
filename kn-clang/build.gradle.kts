@@ -11,14 +11,8 @@ plugins {
     id("com.vanniktech.maven.publish") version "0.33.0"
 }
 
-allprojects {
-    version = (findProperty("version") as String?)
-        ?: System.getenv("GITHUB_REF_NAME")?.removePrefix("v")
-        ?: "1.0.0-SNAPSHOT"
-
-    repositories {
-        mavenCentral()
-    }
+repositories {
+    mavenCentral()
 }
 
 dependencies {
