@@ -229,6 +229,21 @@ clangBuildStatic(name = "mylib", target = KonanTarget.ANDROID_ARM64) {
 }
 ```
 
+### Сборка через CMake / внешние системы сборки
+
+`clangBuildStatic` / `clangBuildDynamic` покрывают простой случай «скомпилировать каталог в
+одну библиотеку». Для более сложных проектов — мульти-файловые проекты, генерируемый код,
+смешанный C/C++/Objective-C, сторонние библиотеки на CMake/autoconf — обычно проще отдать
+оркестрацию самой системе сборки, а плагину оставить только роль поставщика тулчейна.
+
+Те же метаданные (`compiler`, `linker`, `sysroot`, `cFlags`, `cxxStdLib`, …) доступны
+программно через `KonanVersion.getVersion(...).findTargetInfo(target)` и `getLinked(target)`,
+так что из них можно сгенерировать CMake-toolchain-файл и вызвать CMake из Gradle.
+
+Полный пример (разрешение тулчейна, генерация `.cmake`-файла и вызов
+`cmake -S … -B … -DCMAKE_TOOLCHAIN_FILE=…`) — в
+[**building-with-external-tools.md**](building-with-external-tools.md).
+
 ### Примеры в реальных проектах
 
 [github.com/klua/build.gradle.kts](https://github.com/caffeine-mgn/klua/blob/main/build.gradle.kts)
