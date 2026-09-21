@@ -59,7 +59,7 @@ import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.7"
+    id("pw.binom.kn-clang") version "0.0.8"
 }
 
 knClang {

@@ -23,7 +23,7 @@ shortest form uses the default `pluginManagement.repositories` (which includes b
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.7"
+    id("pw.binom.kn-clang") version "0.0.8"
 }
 ```
 
@@ -46,7 +46,7 @@ Or via the version catalog (`gradle/libs.versions.toml`):
 
 ```toml
 [versions]
-kn-clang = "0.0.7"
+kn-clang = "0.0.8"
 
 [plugins]
 kn-clang = { id = "pw.binom.kn-clang", version.ref = "kn-clang" }
@@ -92,7 +92,7 @@ int add(int a, int b) { return a + b; }
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.7"
+    id("pw.binom.kn-clang") version "0.0.8"
 }
 
 knClang {
@@ -160,7 +160,7 @@ tasks fetch it into `~/.konan` on demand.
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.7"
+    id("pw.binom.kn-clang") version "0.0.8"
 }
 
 knClang {
@@ -176,7 +176,7 @@ A single build task can override it with `konanVersion.set(...)` inside its conf
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.7"
+    id("pw.binom.kn-clang") version "0.0.8"
 }
 
 knClang {
