@@ -87,9 +87,11 @@ eval "$(java -jar kn-clang-cli.jar android_arm64 --format shell)"
 
 The CLI prints the same `KnClangToolchain` data the plugin's `knClang.toolchain(target)`
 returns, in a shell- or JSON-friendly format. See
-[`building-with-external-tools.md`](building-with-external-tools.md) for the full
-CMake/Make recipes. KMP-native builds of the CLI (linuxX64 / macosArm64 / mingwX64, no
-JRE required) are coming in 0.1.0.
+[`using-kn-clang-cli.md`](./using-kn-clang-cli.md) for the full reference (CLI options,
+output variables, onnxruntime / LiteRT / CMake examples, and host caveats) and
+[`building-with-external-tools.md`](building-with-external-tools.md) for the
+Gradle-side programmatic API. KMP-native builds of the CLI (linuxX64 / macosArm64 /
+mingwX64, no JRE required) are coming in 0.1.0.
 
 ### Example
 

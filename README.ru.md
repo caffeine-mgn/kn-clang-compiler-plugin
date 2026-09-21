@@ -89,9 +89,11 @@ eval "$(java -jar kn-clang-cli.jar android_arm64 --format shell)"
 ```
 
 CLI выводит те же `KnClangToolchain`, что и `knClang.toolchain(target)` в плагине, в
-shell- или JSON-дружественном формате. Полные рецепты для CMake/Make — в
-[`building-with-external-tools.md`](building-with-external-tools.md). KMP-нативные сборки
-CLI (linuxX64 / macosArm64 / mingwX64, без JRE) выйдут в 0.1.0.
+shell- или JSON-дружественном формате. Полный референс CLI (опции, выходные переменные,
+примеры для onnxruntime / LiteRT / CMake и ограничения по хосту) — в
+[`using-kn-clang-cli.md`](./using-kn-clang-cli.md). Программный API со стороны Gradle — в
+[`building-with-external-tools.md`](building-with-external-tools.md). KMP-нативные
+сборки CLI (linuxX64 / macosArm64 / mingwX64, без JRE) выйдут в 0.1.0.
 
 ### Пример
 
