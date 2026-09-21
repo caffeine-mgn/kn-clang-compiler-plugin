@@ -36,8 +36,10 @@ jobs:
           java-version: 21
           distribution: liberica
 
-      - name: Setup Gradle
+      - name: Setup Gradle (no cache — configuration cache from 0.0.8 single-module build is being restored, causing root project to retain old plugin state)
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
 
       - name: Debug — list init scripts and Gradle user home
         run: |
