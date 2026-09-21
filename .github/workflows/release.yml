@@ -45,30 +45,13 @@ jobs:
           ls -la ~/.gradle/init.d 2>/dev/null || echo "(no init.d)"
           echo "=== GRADLE_USER_HOME ==="
           echo "$GRADLE_USER_HOME"
-          echo "=== init.gradle files ==="
-          find / -name "init.gradle*" -type f 2>/dev/null | head -20
+          echo "=== init.gradle files in user home ==="
+          find ~/.gradle -name "init.gradle*" -type f 2>/dev/null | head -20
           echo "=== gradle.properties in user home ==="
           cat ~/.gradle/gradle.properties 2>/dev/null | head -20 || echo "(no gradle.properties)"
-
-      - name: Debug — root project plugins
-        run: |
-          mkdir -p /tmp/dbg && cat > /tmp/dbg/init.gradle <<'EOF'
-gradle.afterProject { p ->
-  p.afterEvaluate {
-    if (p.path == ':') {
-      println("=== ROOT PROJECT '" + p.name + "' plugins ===")
-      p.plugins.each { println("  " + it.class.name) }
-      println("=== ROOT PROJECT tasks (publishing/plugin) ===")
-      p.tasks.each { t ->
-        if (t.name.contains('plugin') || t.name.contains('sign') || t.name.startsWith('publish') || t.name.contains('Staging')) {
-          println("  task " + p.path + ':' + t.name)
-        }
-      }
-    }
-  }
-}
-EOF
-          ./gradlew help --init-script /tmp/dbg/init.gradle -q 2>&1 | grep -E "===" | head -10
+          echo "=== root project plugins ==="
+          ./gradlew :tasks --all 2>&1 | grep -A 1 "Tasks runnable from root" | head -5
+          ./gradlew projects --no-rebuild 2>&1 | head -20
 
       - name: Import GPG key into keyring
         env:
