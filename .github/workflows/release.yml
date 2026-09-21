@@ -74,7 +74,7 @@ jobs:
             exit 1
           fi
           echo "Running: ./gradlew $TASKS $VERSION_FLAG"
-          ./gradlew $TASKS \
+          ./gradlew clean $TASKS \
             $VERSION_FLAG \
             -PsigningUseGpg=true \
             -Psigning.gnupg.keyName="$GPG_KEY_ID" \
