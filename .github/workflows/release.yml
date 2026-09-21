@@ -90,6 +90,8 @@ jobs:
           echo "Running: ./gradlew $TASKS $VERSION_FLAG"
           ./gradlew clean $TASKS \
             $VERSION_FLAG \
+            --no-configuration-cache \
+            --rerun-tasks \
             -PsigningUseGpg=true \
             -Psigning.gnupg.keyName="$GPG_KEY_ID" \
             -Psigning.gnupg.passphrase="$GPG_PASSWORD" \
