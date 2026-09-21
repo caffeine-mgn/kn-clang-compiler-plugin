@@ -23,7 +23,7 @@ shortest form uses the default `pluginManagement.repositories` (which includes b
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.5"
+    id("pw.binom.kn-clang") version "0.0.7"
 }
 ```
 
@@ -46,7 +46,7 @@ Or via the version catalog (`gradle/libs.versions.toml`):
 
 ```toml
 [versions]
-kn-clang = "0.0.5"
+kn-clang = "0.0.7"
 
 [plugins]
 kn-clang = { id = "pw.binom.kn-clang", version.ref = "kn-clang" }
@@ -92,7 +92,7 @@ int add(int a, int b) { return a + b; }
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.5"
+    id("pw.binom.kn-clang") version "0.0.7"
 }
 
 knClang {
@@ -160,7 +160,7 @@ tasks fetch it into `~/.konan` on demand.
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.5"
+    id("pw.binom.kn-clang") version "0.0.7"
 }
 
 knClang {
@@ -176,7 +176,7 @@ A single build task can override it with `konanVersion.set(...)` inside its conf
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.5"
+    id("pw.binom.kn-clang") version "0.0.7"
 }
 
 knClang {
@@ -230,10 +230,16 @@ library" case. For anything more involved — multi-file projects, generated cod
 C/C++/Objective-C, CMake/autoconf-based third-party libraries — it's usually easier to let
 the project's own build system orchestrate the build and just give it the right toolchain.
 
-The plugin exposes the same metadata (`compiler`, `linker`, `sysroot`, `cFlags`,
-`cxxStdLib`, …) programmatically through `KonanVersion.getVersion(...).findTargetInfo(target)`
-and `getLinked(target)`, so you can generate a CMake toolchain file and drive CMake from
-Gradle.
+The plugin exposes this directly through `knClang.toolchain(target)` — pass a
+`KonanTarget`, get back a `KnClangToolchain` with `compiler`, `cxxCompiler`, `archiver`,
+`linker`, `sysRoot`, `triple` and ready-to-use `cFlags`. The target's sysroot is downloaded
+on the first call. You can feed the result straight into a CMake toolchain file or any
+other build system that consumes a C/C++ toolchain.
+
+```kotlin
+val androidX86 = knClang.toolchain(KonanTarget.ANDROID_X86)
+val flags      = androidX86.cFlags.joinToString(" ")
+```
 
 See [**building-with-external-tools.md**](building-with-external-tools.md) for the full
 example (resolving the toolchain, generating a `.cmake` toolchain file, and invoking

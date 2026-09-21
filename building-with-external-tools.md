@@ -37,7 +37,10 @@ For a target like `KonanTarget.ANDROID_X86`, the resolved toolchain is:
 | `toolchain`  | `null` for Android; `<llvm>/../gcc-toolchain` for Linux                            |
 | `triple`     | `i686-unknown-linux-android`                                                       |
 | `cFlags`     | `-O2 -target i686-unknown-linux-android -fexceptions -isystem … -B<ndk>/bin …`      |
-| `cxxStdLib`  | `-lc++_static -lc++abi` (Android), `-lc++` (Apple), `-lstdc++` (Linux/MinGW)       |
+
+`KnClangToolchain` doesn't carry CMake choices like the C++ stdlib flag (`-lc++_static`,
+`-lc++`, `-lstdc++`) or `-fuse-ld=lld` — those depend on `target.family` and are derived
+at the call site (see [Generating a CMake toolchain file](#generating-a-cmake-toolchain-file)).
 
 For Linux targets `compiler` is `<llvm>/bin/clang`; for Apple targets on a macOS host the
 sysroot comes from the installed Xcode (the path returned by `Xcode.current`), not from
@@ -45,83 +48,46 @@ sysroot comes from the installed Xcode (the path returned by `Xcode.current`), n
 
 ## Extracting the toolchain from a build script
 
-The plugin's `KnClangExtension` only exposes `konanVersion`, but the underlying
-`KonanVersion` interface and `TargetInfo` data class are public, and
-`Konan.checkSysrootInstalled` will fetch the sysroot if it isn't present.
+`KnClangExtension` exposes `knClang.toolchain(target)` which returns a fully-resolved
+`KnClangToolchain` (compiler, C++ compiler, archiver, linker, sysroot, triple, ready-to-use
+`cFlags`). It downloads the target's sysroot on first call via
+`Konan.checkSysrootInstalled`, and is safe to call at task execution time.
 
 ```kotlin
 // build.gradle.kts
-import org.gradle.util.internal.VersionNumber
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import pw.binom.kotlin.clang.CLang
-import pw.binom.kotlin.clang.CLangLinker
-import pw.binom.kotlin.clang.Konan
-import pw.binom.kotlin.clang.KonanVersion
-import pw.binom.kotlin.clang.TargetInfo
-import pw.binom.kotlin.clang.konan.clangTarget
 
 plugins {
-    id("pw.binom.kn-clang") version "0.1.20"
+    id("pw.binom.kn-clang") version "0.0.7"
 }
 
 knClang {
     konanVersion.set("2.4.20")
 }
 
-data class ResolvedToolchain(
-    val target: KonanTarget,
-    val triple: String,
-    val compiler: java.io.File,
-    val cxxCompiler: java.io.File,
-    val archiver: java.io.File,
-    val linker: java.io.File,
-    val sysRoot: java.io.File,
-    val toolchain: java.io.File?,
-    val cFlags: List<String>,
-    val cxxStdLib: String,
-    val useLld: Boolean,
-)
+// Resolves the toolchain lazily — sysroot is downloaded on the first .get() / toolchain()
+// call, not at configuration time.
+val androidX86 = knClang.toolchain(KonanTarget.ANDROID_X86)
+val linuxArm   = knClang.toolchain(KonanTarget.LINUX_ARM64)
 
-fun resolveToolchain(target: KonanTarget): ResolvedToolchain {
-    val version = VersionNumber.parse(knClang.konanVersion.get())
-
-    // Make sure the sysroot/toolchain artifacts are present (downloads on demand).
-    Konan.checkSysrootInstalled(version, target)
-
-    val kv      = KonanVersion.getVersion(version)
-    val info    = kv.findTargetInfo(target)
-        ?: error("Target ${target.name} is not supported by Kotlin/Native $version")
-    val linker  = kv.getLinked(target) as CLangLinker
-    val clang   = (kv.findCppCompiler(target) as CLang).clangFile
-
-    val binDir  = clang.parentFile
-    val isApple = target.family.isAppleFamily
-    val cxxStd  = when (target.family) {
-        Family.ANDROID       -> "-lc++_static -lc++abi"
-        Family.OSX, Family.IOS, Family.TVOS, Family.WATCHOS -> "-lc++"
-        else                 -> "-lstdc++"
-    }
-
-    return ResolvedToolchain(
-        target      = target,
-        triple      = target.clangTarget,
-        compiler    = clang,
-        cxxCompiler = clang.parentFile.resolve(if (clang.nameWithoutExtension.endsWith("clang")) "clang++" else "clang++"),
-        archiver    = linker.arFile,
-        linker      = linker.ldFile,
-        sysRoot     = info.sysRoot.first(),
-        toolchain   = info.toolchain,
-        cFlags      = info.clangCompileArgs,
-        cxxStdLib   = cxxStd,
-        useLld      = !isApple,
-    )
-}
-
-// Example: resolve for two different targets.
-val androidX86 = resolveToolchain(KonanTarget.ANDROID_X86)
-val linuxArm64 = resolveToolchain(KonanTarget.LINUX_ARM64)
+// Inspect it:
+androidX86.compiler      // <ndk>/bin/i686-linux-android21-clang
+androidX86.cxxCompiler   // <ndk>/bin/i686-linux-android21-clang++
+androidX86.archiver      // <llvm>/bin/llvm-ar
+androidX86.linker        // <llvm>/bin/lld
+androidX86.sysRoot       // ~/.konan/dependencies/.../android-21/arch-x86
+androidX86.triple        // i686-unknown-linux-android
+androidX86.cFlags        // -O2 -target … -fexceptions -isystem … -B<ndk>/bin … --sysroot=…
 ```
+
+The data class lives in `pw.binom.kotlin.clang` and is the same one the implementation
+uses internally, just exposed in a stable shape so consumers can depend on it.
+
+The Apple-specific `-fuse-ld=lld` switch is **not** part of `cFlags` (it's invalid on
+Apple — see [Caveats](#caveats)); pass it manually for non-Apple targets. The C++ stdlib
+flag is also a per-family choice and isn't in the data class — derive it from
+`target.family` when generating the CMake toolchain file, as shown below.
 
 If you only ever need a single target, the same code can live inside a `tasks.register`
 configuration block and feed the result into a CMake invocation task — see the CMake
@@ -137,12 +103,21 @@ The plugin doesn't generate one yet, but it's a few lines of Kotlin:
 val outDir = layout.buildDirectory.dir("cmake").get().asFile
 val toolchainFile = outDir.resolve("kn-android-x86.cmake")
 
+// C++ stdlib + linker-flag choices are target-family-specific. The plugin doesn't bake
+// them into the toolchain object — derive them at the call site.
+val isApple = androidX86.target.family.isAppleFamily
+val cxxStdLib = when (androidX86.target.family) {
+    Family.ANDROID       -> "-lc++_static -lc++abi"
+    Family.OSX, Family.IOS, Family.TVOS, Family.WATCHOS -> "-lc++"
+    else                 -> "-lstdc++"
+}
+
 val generateToolchain = tasks.register("generateAndroidX86Toolchain") {
     val t = androidX86
     val flagsInit = t.cFlags.joinToString(" ")
     val linkerInit = buildList {
-        if (t.useLld) add("-fuse-ld=lld")
-        add(t.cxxStdLib)
+        if (!isApple) add("-fuse-ld=lld")  // invalid on Apple — see Caveats
+        add(cxxStdLib)
     }.joinToString(" ")
 
     inputs.property("flags", flagsInit)

@@ -23,7 +23,7 @@
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.5"
+    id("pw.binom.kn-clang") version "0.0.7"
 }
 ```
 
@@ -50,7 +50,7 @@ pluginManagement {
 
 ```toml
 [versions]
-kn-clang = "0.0.5"
+kn-clang = "0.0.7"
 
 [plugins]
 kn-clang = { id = "pw.binom.kn-clang", version.ref = "kn-clang" }
@@ -96,7 +96,7 @@ int add(int a, int b) { return a + b; }
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.5"
+    id("pw.binom.kn-clang") version "0.0.7"
 }
 
 knClang {
@@ -164,7 +164,7 @@ clangBuildDynamic {
 
 ```kotlin
 plugins {
-    id("pw.binom.kn-clang") version "0.0.5"
+    id("pw.binom.kn-clang") version "0.0.7"
 }
 
 knClang {
@@ -181,7 +181,7 @@ knClang {
 import pw.binom.kotlin.clang.*
 
 plugins {
-    id("pw.binom.kn-clang") version "0.0.5"
+    id("pw.binom.kn-clang") version "0.0.7"
 }
 
 knClang {
@@ -236,9 +236,16 @@ clangBuildStatic(name = "mylib", target = KonanTarget.ANDROID_ARM64) {
 смешанный C/C++/Objective-C, сторонние библиотеки на CMake/autoconf — обычно проще отдать
 оркестрацию самой системе сборки, а плагину оставить только роль поставщика тулчейна.
 
-Те же метаданные (`compiler`, `linker`, `sysroot`, `cFlags`, `cxxStdLib`, …) доступны
-программно через `KonanVersion.getVersion(...).findTargetInfo(target)` и `getLinked(target)`,
-так что из них можно сгенерировать CMake-toolchain-файл и вызвать CMake из Gradle.
+Для этого в плагине есть `knClang.toolchain(target)` — передаёте `KonanTarget`, получаете
+`KnClangToolchain` с `compiler`, `cxxCompiler`, `archiver`, `linker`, `sysRoot`, `triple`
+и готовыми `cFlags`. Sysroot таргета скачивается при первом вызове. Результат можно
+напрямую подать в CMake-toolchain-файл или в любую другую систему сборки, которая
+принимает C/C++-тулчейн.
+
+```kotlin
+val androidX86 = knClang.toolchain(KonanTarget.ANDROID_X86)
+val flags      = androidX86.cFlags.joinToString(" ")
+```
 
 Полный пример (разрешение тулчейна, генерация `.cmake`-файла и вызов
 `cmake -S … -B … -DCMAKE_TOOLCHAIN_FILE=…`) — в
