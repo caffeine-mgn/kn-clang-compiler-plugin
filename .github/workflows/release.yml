@@ -49,22 +49,26 @@ jobs:
           find ~/.gradle -name "init.gradle*" -type f 2>/dev/null | head -20
           echo "=== gradle.properties in user home ==="
           cat ~/.gradle/gradle.properties 2>/dev/null | head -20 || echo "(no gradle.properties)"
-          echo "=== dump inject-develocity init script ==="
-          head -100 ~/.gradle/init.d/gradle-actions.inject-develocity.init.gradle 2>/dev/null
-          echo "=== dump build-result-capture init script ==="
-          head -100 ~/.gradle/init.d/gradle-actions.build-result-capture.init.gradle 2>/dev/null
-          echo "=== dump github-dependency-graph init script ==="
-          head -100 ~/.gradle/init.d/gradle-actions.github-dependency-graph.init.gradle 2>/dev/null
-          echo "=== root project plugins (init script) ==="
+
+      - name: Debug — root project plugins via projectsLoaded+afterEvaluate
+        run: |
           cat > /tmp/rdebug.init.gradle << 'INI'
           gradle.projectsLoaded {
             rootProject.afterEvaluate {
               println("RD: root has plugins:")
               rootProject.plugins.each { println("RD:   " + it.class.name) }
+              println("RD: root has publications:")
+              rootProject.publishing.publications.each { println("RD:   " + it.name + " (" + it.class.name + ")") }
+              println("RD: root has tasks (publish-like):")
+              rootProject.tasks.each { t ->
+                if (t.name.contains('plugin') || t.name.contains('publish') || t.name.contains('Stag') || t.name.contains('sign')) {
+                  println("RD:   " + t.name)
+                }
+              }
             }
           }
           INI
-          ./gradlew :tasks --no-rebuild --init-script /tmp/rdebug.init.gradle 2>&1 | grep "^RD:" | head -20
+          ./gradlew :tasks --no-rebuild --init-script /tmp/rdebug.init.gradle 2>&1 | grep "^RD:" | head -40
 
       - name: Import GPG key into keyring
         env:
