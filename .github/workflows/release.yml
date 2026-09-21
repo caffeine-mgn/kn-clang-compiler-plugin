@@ -95,10 +95,10 @@ jobs:
           VERSION_FLAG="-Pversion=${VERSION_VALUE}"
           TASKS=""
           if [ "$PLUGIN_PORTAL_ONLY" != "true" ]; then
-            TASKS="$TASKS publishToMavenCentral"
+            TASKS="$TASKS :kn-clang:publishToMavenCentral"
           fi
           if [ "$MAVEN_CENTRAL_ONLY" != "true" ]; then
-            TASKS="$TASKS publishPlugins"
+            TASKS="$TASKS :kn-clang:publishPlugins"
           fi
           if [ -z "$TASKS" ]; then
             echo "::error::Both maven_central_only and plugin_portal_only are true — nothing to do."
