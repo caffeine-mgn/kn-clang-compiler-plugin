@@ -16,10 +16,25 @@ repositories {
 }
 
 dependencies {
-    api(project(":kn-clang-core"))
+    api(project(":kn-clang-core")) {
+        isTransitive = true
+    }
     api(gradleApi())
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.KOTLIN_VERSION}")
+}
+
+tasks.named<Jar>("jar") {
+    from(project(":kn-clang-core").tasks.named<Jar>("jar").map { zipTree(it.outputs.files.singleFile) }) {
+        exclude { details ->
+            details.file.name.startsWith("META-INF") &&
+                (details.file.name.endsWith(".kotlin_module") ||
+                 details.file.name.endsWith(".SF") ||
+                 details.file.name.endsWith(".RSA"))
+        }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    isZip64 = true
 }
 
 tasks {

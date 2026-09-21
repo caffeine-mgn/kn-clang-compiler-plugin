@@ -2,10 +2,6 @@ import pw.binom.Versions
 
 plugins {
     kotlin("jvm")
-    `maven-publish`
-    signing
-    id("org.jetbrains.dokka") version "2.0.0"
-    id("com.vanniktech.maven.publish") version "0.33.0"
 }
 
 repositories {
@@ -34,18 +30,3 @@ tasks {
     }
 }
 
-if (findProperty("signingUseGpg") == "true") {
-    signing {
-        useGpgCmd()
-    }
-}
-
-mavenPublishing {
-    publishToMavenCentral(automaticRelease = true)
-    signAllPublications()
-    coordinates(
-        groupId = "pw.binom",
-        artifactId = "kn-clang-core",
-        version = project.version.toString()
-    )
-}
