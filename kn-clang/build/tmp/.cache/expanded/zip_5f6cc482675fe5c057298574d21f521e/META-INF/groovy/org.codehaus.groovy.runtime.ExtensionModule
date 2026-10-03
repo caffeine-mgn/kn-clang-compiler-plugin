@@ -1,4 +1,0 @@
-moduleName=groovy-datetime
-moduleVersion=4.0.32
-extensionClasses=org.apache.groovy.datetime.extensions.DateTimeExtensions
-staticExtensionClasses=org.apache.groovy.datetime.extensions.DateTimeStaticExtensions

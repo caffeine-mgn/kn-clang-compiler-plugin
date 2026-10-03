@@ -1,1 +1,0 @@
--dontwarn com.google.re2j.**

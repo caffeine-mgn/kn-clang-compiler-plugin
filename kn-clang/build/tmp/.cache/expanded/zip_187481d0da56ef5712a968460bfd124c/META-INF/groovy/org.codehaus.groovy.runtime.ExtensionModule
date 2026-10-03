@@ -1,4 +1,0 @@
-moduleName=groovy-nio
-moduleVersion=4.0.32
-extensionClasses=org.apache.groovy.nio.extensions.NioExtensions
-staticExtensionClasses=
