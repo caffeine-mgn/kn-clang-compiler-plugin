@@ -1,0 +1,10 @@
+JarIndex-Version: 1.0
+
+groovy-ant-4.0.32.jar
+groovy
+groovy/ant
+org
+org/codehaus
+org/codehaus/groovy
+org/codehaus/groovy/ant
+

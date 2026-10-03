@@ -1,0 +1,10 @@
+JarIndex-Version: 1.0
+
+groovy-nio-4.0.32.jar
+org
+org/apache
+org/apache/groovy
+org/apache/groovy/nio
+org/apache/groovy/nio/extensions
+org/apache/groovy/nio/runtime
+

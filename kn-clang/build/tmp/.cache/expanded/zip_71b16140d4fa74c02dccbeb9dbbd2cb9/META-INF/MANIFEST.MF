@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Premain-Class: kotlinx.coroutines.debug.AgentPremain
+Can-Retransform-Classes: true
+Multi-Release: true
+

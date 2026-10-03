@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="pw.binom.kotlin.clang.VersionTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-03T02:47:34.865Z" hostname="subochev-work" time="0.001">
+  <properties/>
+  <testcase name="compareTest()" classname="pw.binom.kotlin.clang.VersionTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

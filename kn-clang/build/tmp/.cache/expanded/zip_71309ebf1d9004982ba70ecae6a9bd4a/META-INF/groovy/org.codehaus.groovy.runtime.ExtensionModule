@@ -1,0 +1,4 @@
+moduleName=groovy-dateutil
+moduleVersion=4.0.32
+extensionClasses=org.apache.groovy.dateutil.extensions.DateUtilExtensions
+staticExtensionClasses=org.apache.groovy.dateutil.extensions.DateUtilStaticExtensions

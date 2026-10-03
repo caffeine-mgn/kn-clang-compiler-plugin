@@ -1,0 +1,5 @@
+org.apache.maven.settings.building.DefaultSettingsBuilder
+org.apache.maven.settings.crypto.DefaultSettingsDecrypter
+org.apache.maven.settings.io.DefaultSettingsReader
+org.apache.maven.settings.io.DefaultSettingsWriter
+org.apache.maven.settings.validation.DefaultSettingsValidator

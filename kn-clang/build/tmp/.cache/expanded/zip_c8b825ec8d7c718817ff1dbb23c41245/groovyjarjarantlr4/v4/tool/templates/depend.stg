@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
+
+/** templates used to generate make-compatible dependencies */
+
+/** Generate "f : x, y, z" dependencies for input
+ *  dependencies and generated files. in and out
+ *  are File objects.  For example, you can say
+ *  <f.canonicalPath>
+ */
+dependencies(grammarFileName,in,out) ::= <<
+<if(in)><grammarFileName>: <in; separator=", "><endif>
+<out:{f | <f> : <grammarFileName>}; separator="\n">
+>>

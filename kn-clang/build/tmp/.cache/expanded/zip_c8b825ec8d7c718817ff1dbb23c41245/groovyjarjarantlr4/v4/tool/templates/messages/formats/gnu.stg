@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
+/*
+This file contains the actual layout of the messages emitted by ANTLR.
+ The text itself is coming out of the languages/*stg files, according to the chosen locale.
+ This file contains the format that mimicks GCC output.
+*/
+
+location(file, line, column) ::= "<file>:<line>:<column>:"
+
+message(id, text) ::= "<text> [error <id>]"
+
+report(location, message, type) ::= "<location> <type>: <message>"
+
+wantsSingleLineMessage() ::= "true"

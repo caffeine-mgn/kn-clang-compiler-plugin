@@ -1,0 +1,49 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Tool: Bnd-6.4.1.202306080939
+Export-Package: groovy.text;version="4.0.32",groovy.text.markup;version=
+ "4.0.32"
+Import-Package: groovy.lang;resolution:=optional;version="[4.0,5)",groov
+ y.namespace;resolution:=optional;version="[4.0,5)",groovy.text;resoluti
+ on:=optional;version="[4.0,5)",groovy.transform;resolution:=optional;ve
+ rsion="[4.0,5)",groovy.util;resolution:=optional;version="[4.0,5)",groo
+ vy.xml;resolution:=optional,javax.xml.parsers;resolution:=optional,org.
+ apache.groovy.internal.util;resolution:=optional;version="[4.0,5)",org.
+ apache.groovy.io;resolution:=optional;version="[4.0,5)",org.apache.groo
+ vy.util;resolution:=optional;version="[4.0,5)",org.codehaus.groovy.ast;
+ resolution:=optional;version="[4.0,5)",org.codehaus.groovy.ast.expr;res
+ olution:=optional;version="[4.0,5)",org.codehaus.groovy.ast.stmt;resolu
+ tion:=optional;version="[4.0,5)",org.codehaus.groovy.classgen;resolutio
+ n:=optional;version="[4.0,5)",org.codehaus.groovy.classgen.asm;resoluti
+ on:=optional;version="[4.0,5)",org.codehaus.groovy.control;resolution:=
+ optional;version="[4.0,5)",org.codehaus.groovy.control.customizers;reso
+ lution:=optional;version="[4.0,5)",org.codehaus.groovy.control.io;resol
+ ution:=optional;version="[4.0,5)",org.codehaus.groovy.control.messages;
+ resolution:=optional;version="[4.0,5)",org.codehaus.groovy.reflection;r
+ esolution:=optional;version="[4.0,5)",org.codehaus.groovy.runtime;resol
+ ution:=optional;version="[4.0,5)",org.codehaus.groovy.runtime.typehandl
+ ing;resolution:=optional;version="[4.0,5)",org.codehaus.groovy.syntax;r
+ esolution:=optional;version="[4.0,5)",org.codehaus.groovy.transform.stc
+ ;resolution:=optional;version="[4.0,5)",org.codehaus.groovy.vmplugin.v8
+ ;resolution:=optional;version="[4.0,5)",org.xml.sax;resolution:=optiona
+ l
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+Bundle-SymbolicName: groovy-templates
+Bundle-Version: 4.0.32
+Automatic-Module-Name: org.apache.groovy.templates
+Bundle-Name: Groovy module: groovy-templates
+Fragment-Host: groovy
+Bundle-Description: Groovy Runtime
+Bundle-Vendor: The Apache Software Foundation
+Bundle-License: Apache-2.0
+DynamicImport-Package: *
+Eclipse-BuddyPolicy: dependent
+Specification-Title: Groovy: a powerful, multi-faceted language for the 
+ JVM
+Specification-Vendor: The Apache Software Foundation
+Specification-Version: 4.0.32
+Implementation-Title: Groovy: a powerful, multi-faceted language for the
+  JVM
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Version: 4.0.32
+

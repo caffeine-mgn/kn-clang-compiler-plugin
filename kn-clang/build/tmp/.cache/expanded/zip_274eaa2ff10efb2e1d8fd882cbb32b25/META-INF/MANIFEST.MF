@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Implementation-Vendor: JetBrains
+Implementation-Title: kotlin-gradle-plugin
+Implementation-Version: 2.4.20
+

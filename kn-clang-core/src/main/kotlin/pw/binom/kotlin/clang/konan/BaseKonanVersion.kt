@@ -11,6 +11,7 @@ import pw.binom.kotlin.clang.CLangLinker
 import pw.binom.kotlin.clang.CppCompiler
 import pw.binom.kotlin.clang.KONAN_DEPS
 import pw.binom.kotlin.clang.KONAN_USER_DIR
+import pw.binom.kotlin.clang.Konan
 import pw.binom.kotlin.clang.KonanVersion
 import pw.binom.kotlin.clang.Linker
 import pw.binom.kotlin.clang.PREBUILD_KONAN_DIR_NAME
@@ -39,12 +40,9 @@ class BaseKonanVersion(val kotlinVersion: KonanVersionNumber) : KonanVersion {
         .resolve("konan/konan.properties")
 
     private val props: Properties by lazy {
-        if (!konanPropsFile.exists()) {
-            throw RuntimeException(
-                "Cannot find $konanPropsFile. Was Kotlin/Native $kotlinVersion downloaded? " +
-                    "Run `./gradlew downloadKonan` first."
-            )
-        }
+        // A cold `~/.konan` must not fail the build: install K/N on demand the
+        // same way the `downloadKonan` task would have.
+        Konan.checkKonanInstalled(kotlinVersion)
         Properties().apply { load(konanPropsFile.inputStream()) }
     }
 

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>pw.binom.kn-clang</groupId>
+  <artifactId>pw.binom.kn-clang.gradle.plugin</artifactId>
+  <version>unspecified</version>
+  <packaging>pom</packaging>
+  <name>Kotlin-Clang</name>
+  <description>Plugin for compile C and C++ using Konan's Clang</description>
+  <url>https://github.com/caffeine-mgn/kn-clang-compiler-plugin</url>
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>subochev</id>
+      <name>Anton Subochev</name>
+      <email>caffeine.mgn@gmail.com</email>
+    </developer>
+  </developers>
+  <scm>
+    <connection>https://github.com/caffeine-mgn/kn-clang-compiler-plugin.git</connection>
+    <url>https://github.com/caffeine-mgn/kn-clang-compiler-plugin</url>
+  </scm>
+  <dependencies>
+    <dependency>
+      <groupId>pw.binom</groupId>
+      <artifactId>kn-clang-compiler-plugin</artifactId>
+      <version>unspecified</version>
+    </dependency>
+  </dependencies>
+</project>

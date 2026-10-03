@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Tool: Bnd-6.4.1.202306080939
+Export-Package: org.apache.groovy.dateutil.extensions;version="4.0.32"
+Import-Package: groovy.lang;resolution:=optional;version="[4.0,5)",org.c
+ odehaus.groovy.runtime.typehandling;resolution:=optional;version="[4.0,
+ 5)"
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+Bundle-SymbolicName: groovy-dateutil
+Bundle-Version: 4.0.32
+Automatic-Module-Name: org.apache.groovy.dateutil
+Bundle-Name: Groovy module: groovy-dateutil
+Fragment-Host: groovy
+Bundle-Description: Groovy Runtime
+Bundle-Vendor: The Apache Software Foundation
+Bundle-License: Apache-2.0
+DynamicImport-Package: *
+Eclipse-BuddyPolicy: dependent
+Specification-Title: Groovy: a powerful, multi-faceted language for the 
+ JVM
+Specification-Vendor: The Apache Software Foundation
+Specification-Version: 4.0.32
+Implementation-Title: Groovy: a powerful, multi-faceted language for the
+  JVM
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Version: 4.0.32
+

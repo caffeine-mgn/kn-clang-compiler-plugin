@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Created-By: Maven JAR Plugin 3.2.2
+Build-Jdk-Spec: 17
+Multi-Release: true
+Bundle-Description: Error Prone is a static analysis tool for Java that 
+ catches common programming mistakes at compile-time.
+Bundle-DocURL: https://errorprone.info/error_prone_annotations
+Bundle-License: "Apache 2.0";link="http://www.apache.org/licenses/LICENS
+ E-2.0.txt"
+Bundle-ManifestVersion: 2
+Bundle-Name: error-prone annotations
+Bundle-SCM: url="https://github.com/google/error-prone/error_prone_annot
+ ations",connection="scm:git:https://github.com/google/error-prone.git/e
+ rror_prone_annotations",developer-connection="scm:git:git@github.com:go
+ ogle/error-prone.git/error_prone_annotations",tag=HEAD
+Bundle-SymbolicName: com.google.errorprone.annotations
+Bundle-Vendor: Google LLC
+Bundle-Version: 2.27.0
+Export-Package: com.google.errorprone.annotations;uses:="javax.lang.mode
+ l.element";version="2.27.0",com.google.errorprone.annotations.concurren
+ t;version="2.27.0"
+Import-Package: javax.lang.model.element
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+

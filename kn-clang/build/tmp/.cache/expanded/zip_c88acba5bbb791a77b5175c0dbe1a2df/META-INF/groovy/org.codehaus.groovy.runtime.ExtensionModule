@@ -1,0 +1,4 @@
+moduleName=groovy-xml
+moduleVersion=4.0.32
+extensionClasses=org.apache.groovy.xml.extensions.XmlExtensions
+staticExtensionClasses=

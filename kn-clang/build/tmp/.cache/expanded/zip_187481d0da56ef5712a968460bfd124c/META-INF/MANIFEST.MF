@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Tool: Bnd-6.4.1.202306080939
+Export-Package: org.apache.groovy.nio.extensions;version="4.0.32",org.ap
+ ache.groovy.nio.runtime;version="4.0.32"
+Import-Package: groovy.io;resolution:=optional;version="[4.0,5)",groovy.
+ lang;resolution:=optional;version="[4.0,5)",groovy.transform;resolution
+ :=optional;version="[4.0,5)",groovy.transform.stc;resolution:=optional;
+ version="[4.0,5)",org.apache.groovy.nio.runtime;resolution:=optional;ve
+ rsion="[4.0,5)",org.codehaus.groovy.runtime;resolution:=optional;versio
+ n="[4.0,5)",org.codehaus.groovy.runtime.callsite;resolution:=optional;v
+ ersion="[4.0,5)",org.codehaus.groovy.runtime.typehandling;resolution:=o
+ ptional;version="[4.0,5)"
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+Bundle-SymbolicName: groovy-nio
+Bundle-Version: 4.0.32
+Automatic-Module-Name: org.apache.groovy.nio
+Bundle-Name: Groovy module: groovy-nio
+Fragment-Host: groovy
+Bundle-Description: Groovy Runtime
+Bundle-Vendor: The Apache Software Foundation
+Bundle-License: Apache-2.0
+DynamicImport-Package: *
+Eclipse-BuddyPolicy: dependent
+Specification-Title: Groovy: a powerful, multi-faceted language for the 
+ JVM
+Specification-Vendor: The Apache Software Foundation
+Specification-Version: 4.0.32
+Implementation-Title: Groovy: a powerful, multi-faceted language for the
+  JVM
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Version: 4.0.32
+

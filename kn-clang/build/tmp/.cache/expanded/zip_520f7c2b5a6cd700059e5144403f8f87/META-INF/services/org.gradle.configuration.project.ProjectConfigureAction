@@ -1,0 +1,6 @@
+org.gradle.buildinit.plugins.internal.action.BuildInitAutoApplyAction
+org.gradle.buildinit.plugins.internal.action.WrapperPluginAutoApplyAction
+org.gradle.jvm.toolchain.internal.task.ShowToolchainsTaskConfigurator
+org.gradle.api.plugins.internal.SoftwareReportingTasksAutoApplyAction
+org.gradle.api.plugins.internal.HelpTasksAutoApplyAction
+org.gradle.internal.buildconfiguration.DaemonJvmPropertiesConfigurator

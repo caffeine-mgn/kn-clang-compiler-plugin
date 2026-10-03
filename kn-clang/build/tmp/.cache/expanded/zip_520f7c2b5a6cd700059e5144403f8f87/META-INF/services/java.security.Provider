@@ -1,0 +1,2 @@
+org.gradle.internal.impldep.org.bouncycastle.jce.provider.BouncyCastleProvider
+org.gradle.internal.impldep.org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider

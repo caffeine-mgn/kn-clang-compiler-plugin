@@ -1,0 +1,16 @@
+JarIndex-Version: 1.0
+
+groovy-xml-4.0.32.jar
+groovy
+groovy/xml
+groovy/xml/dom
+groovy/xml/markupsupport
+groovy/xml/slurpersupport
+groovy/xml/streamingmarkupsupport
+org
+org/apache
+org/apache/groovy
+org/apache/groovy/xml
+org/apache/groovy/xml/extensions
+org/apache/groovy/xml/tools
+

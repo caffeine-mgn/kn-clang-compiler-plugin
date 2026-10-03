@@ -52,6 +52,12 @@ object Konan {
     private fun prebuildDir(version: KonanVersionNumber) =
         KONAN_USER_DIR.resolve(PREBUILD_KONAN_DIR_NAME(version = version))
 
+    /**
+     * Guards [checkKonanInstalled] across concurrently-running Gradle workers so
+     * the archive can't be downloaded/unpacked twice into the same directory.
+     */
+    private val installLock = Any()
+
     fun KONAN_EXE_PATH(version: KonanVersionNumber): File {
         val binFolder = prebuildDir(version).resolve("bin")
         return if (HostManager.hostIsMingw) {
@@ -62,14 +68,23 @@ object Konan {
     }
 
     fun checkKonanInstalled(version: KonanVersionNumber) {
+        if (prebuildDir(version).resolve("konan/konan.properties").isFile) {
+            return
+        }
+        synchronized(installLock) {
+            if (prebuildDir(version).resolve("konan/konan.properties").isFile) {
+                return
+            }
+            doCheckKonanInstalled(version)
+        }
+    }
+
+    private fun doCheckKonanInstalled(version: KonanVersionNumber) {
         val dir = prebuildDir(version)
         // `konan/konan.properties` is the marker a complete install leaves behind
         // (both this plugin and KGP write it). A bare directory only means the
         // archive's top-level entry was created before unpacking failed, so
         // treating it as "installed" would poison every subsequent run.
-        if (dir.resolve("konan/konan.properties").isFile) {
-            return
-        }
         if (dir.exists() && !dir.deleteRecursively()) {
             throw RuntimeException("Can't clean up incomplete Kotlin/Native install at $dir")
         }

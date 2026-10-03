@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: pw.binom.knclang.cli.MainKt
+Implementation-Title: kn-clang-cli
+Implementation-Version: unspecified
+

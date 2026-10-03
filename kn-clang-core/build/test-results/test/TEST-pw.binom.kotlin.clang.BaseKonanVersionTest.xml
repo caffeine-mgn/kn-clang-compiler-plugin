@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="pw.binom.kotlin.clang.BaseKonanVersionTest" tests="65" skipped="0" failures="0" errors="0" timestamp="2026-10-03T02:47:32.680Z" hostname="subochev-work" time="0.064">
+  <properties/>
+  <testcase name="Konan 2.4.20 -&gt; android_arm32" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.004"/>
+  <testcase name="Konan 2.4.20 -&gt; android_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.001"/>
+  <testcase name="Konan 2.4.20 -&gt; android_x86" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; linux_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.002"/>
+  <testcase name="Konan 2.4.20 -&gt; linux_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; linux_arm32_hfp" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; mingw_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; macos_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; macos_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; ios_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.001"/>
+  <testcase name="Konan 2.4.20 -&gt; ios_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; ios_simulator_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; tvos_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; tvos_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.001"/>
+  <testcase name="Konan 2.4.20 -&gt; tvos_simulator_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_arm32" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.001"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_simulator_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_arm32" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_x86" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; linux_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.001"/>
+  <testcase name="Konan 2.4.20 -&gt; linux_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; linux_arm32_hfp" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; mingw_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; macos_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; macos_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; ios_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; ios_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; ios_simulator_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; tvos_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; tvos_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; tvos_simulator_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_arm32" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_simulator_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_arm32" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_x86" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="linux x64 sysroot resolves to an existing directory()" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.002"/>
+  <testcase name="Konan 2.4.20 -&gt; linux_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.001"/>
+  <testcase name="Konan 2.4.20 -&gt; linux_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; linux_arm32_hfp" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; mingw_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; macos_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; macos_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; ios_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; ios_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; ios_simulator_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; tvos_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; tvos_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; tvos_simulator_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_arm32" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.001"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; watchos_simulator_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_arm32" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_arm64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.001"/>
+  <testcase name="Konan 2.4.20 -&gt; android_x86" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <testcase name="Konan 2.4.20 -&gt; android_x64" classname="pw.binom.kotlin.clang.BaseKonanVersionTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

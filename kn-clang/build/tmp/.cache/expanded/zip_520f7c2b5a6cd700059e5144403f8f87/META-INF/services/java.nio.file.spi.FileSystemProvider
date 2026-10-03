@@ -1,0 +1,2 @@
+org.gradle.internal.impldep.org.apache.sshd.common.file.root.RootedFileSystemProvider
+org.gradle.internal.impldep.org.apache.sshd.sftp.client.fs.SftpFileSystemProvider

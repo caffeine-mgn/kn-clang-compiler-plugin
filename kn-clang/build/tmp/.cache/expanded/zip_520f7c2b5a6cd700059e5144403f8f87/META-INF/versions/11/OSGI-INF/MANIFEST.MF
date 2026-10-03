@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Import-Package: com.sun.jna;version="[5.0,6)";resolution:=optional,com
+ .sun.jna.platform.win32;version="[5.0,6)";resolution:=optional,org.ap
+ ache.logging.log4j;version="[2.0,4)";resolution:=optional,org.bouncyc
+ astle.crypto;version="[1.76,2)";resolution:=optional,org.bouncycastle
+ .crypto.digests;version="[1.76,2)";resolution:=optional,org.bouncycas
+ tle.crypto.engines;version="[1.76,2)";resolution:=optional,org.bouncy
+ castle.crypto.generators;version="[1.76,2)";resolution:=optional,org.
+ bouncycastle.crypto.macs;version="[1.76,2)";resolution:=optional,org.
+ bouncycastle.crypto.modes;version="[1.76,2)";resolution:=optional,org
+ .bouncycastle.crypto.params;version="[1.76,2)";resolution:=optional,o
+ rg.bouncycastle.crypto.signers;version="[1.76,2)";resolution:=optiona
+ l,org.bouncycastle.pqc.crypto.ntruprime;version="[1.76,2)";resolution
+ :=optional,org.slf4j;version="[1.7,3)";resolution:=optional,org.newsc
+ lub.net.unix;resolution:=optional,org.ietf.jgss;resolution:=optional,
+ javax.crypto,javax.crypto.interfaces,javax.crypto.spec
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=11))"
+
