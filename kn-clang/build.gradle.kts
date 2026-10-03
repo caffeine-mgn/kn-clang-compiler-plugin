@@ -16,15 +16,25 @@ repositories {
 }
 
 dependencies {
-    api(project(":kn-clang-core")) {
-        isTransitive = true
-    }
-    api(gradleApi())
+    // :kn-clang's jar bundles :kn-clang-core's compiled classes (see the jar
+    // task below), so :kn-clang-core is compileOnly and must NOT appear as a
+    // resolvable `pw.binom:kn-clang-core` dependency in the POM/Gradle
+    // metadata — that module is internal and never published. Its runtime
+    // dependencies are republished here instead, so the fat-jar has a complete
+    // classpath for consumers.
+    compileOnly(project(":kn-clang-core"))
+    compileOnly(gradleApi())
+    api("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.KOTLIN_VERSION}")
+    api("org.apache.commons:commons-compress:1.21")
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.KOTLIN_VERSION}")
+    testImplementation(project(":kn-clang-core"))
 }
 
 tasks.named<Jar>("jar") {
+    // Fat-jar: absorb :kn-clang-core's compiled classes and also republish its
+    // runtime dependencies (kotlin-gradle-plugin, commons-compress) so consumers
+    // get a complete classpath without a separate :kn-clang-core artifact.
     from(project(":kn-clang-core").tasks.named<Jar>("jar").map { zipTree(it.outputs.files.singleFile) }) {
         exclude { details ->
             details.file.name.startsWith("META-INF") &&
