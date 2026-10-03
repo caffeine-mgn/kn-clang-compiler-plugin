@@ -57,8 +57,16 @@ object Konan {
     }
 
     fun checkKonanInstalled(version: KonanVersionNumber) {
-        if (prebuildDir(version).isDirectory) {
+        val dir = prebuildDir(version)
+        // `konan/konan.properties` is the marker a complete install leaves behind
+        // (both this plugin and KGP write it). A bare directory only means the
+        // archive's top-level entry was created before unpacking failed, so
+        // treating it as "installed" would poison every subsequent run.
+        if (dir.resolve("konan/konan.properties").isFile) {
             return
+        }
+        if (dir.exists() && !dir.deleteRecursively()) {
+            throw RuntimeException("Can't clean up incomplete Kotlin/Native install at $dir")
         }
         println("Please wait while Kotlin/Native compiler $version is being installed.")
         val arch = System.getProperty("os.arch")
@@ -71,6 +79,11 @@ object Konan {
             else -> throw RuntimeException("Unsupported host ${HostManager.hostOs()}:${HostManager.hostArch()}")
         }
         println("Getting Konan from Url \"$url\"")
+        // Unpack into a scratch dir first: the K/N archives wrap the payload in a
+        // single top-level directory named after the distribution, so unpacking
+        // straight into `prebuildDir` would nest it one level too deep and leave
+        // `prebuildDir/konan/konan.properties` (what BaseKonanVersion reads) missing.
+        val tmp = File.createTempFile("kn-clang-konan", "").apply { delete(); mkdirs() }
         val connection = URI(url).toURL().openConnection() as HttpURLConnection
         try {
             if (connection.responseCode != 200) {
@@ -78,15 +91,34 @@ object Konan {
             }
             try {
                 when {
-                    url.endsWith(".tar.gz") -> unpackTargz(connection.inputStream, prebuildDir(version))
-                    url.endsWith(".zip") -> unpackZip(connection.inputStream, prebuildDir(version))
+                    url.endsWith(".tar.gz") -> unpackTargz(connection.inputStream, tmp)
+                    url.endsWith(".zip") -> unpackZip(connection.inputStream, tmp)
                     else -> throw RuntimeException("Unsupported archive \"$url\"")
                 }
+                installKonanFrom(tmp = tmp, dir = dir)
             } catch (e: Throwable) {
                 throw RuntimeException("Can't unpack konan", e)
             }
         } finally {
+            tmp.deleteRecursively()
             connection.disconnect()
+        }
+    }
+
+    /**
+     * Moves an unpacked K/N distribution from the scratch [tmp] into [dir],
+     * stripping the archive's single top-level directory if present (the
+     * `kotlin-native-prebuilt-*` archives always wrap their payload in one).
+     */
+    internal fun installKonanFrom(tmp: File, dir: File) {
+        // Only strip a single wrapper dir that is actually the distribution
+        // (`kotlin-native-prebuilt-*`); a lone unrelated dir must be preserved.
+        val root = tmp.listFiles()?.singleOrNull()
+            ?.takeIf { it.isDirectory && it.name.startsWith("kotlin-native-") }
+            ?: tmp
+        dir.parentFile?.mkdirs()
+        if (!root.renameTo(dir) && !root.copyRecursively(dir, overwrite = true)) {
+            throw RuntimeException("Can't move Kotlin/Native into $dir")
         }
     }
 
@@ -133,10 +165,9 @@ object Konan {
                 while (entry != null) {
                     val entryFile = dest.resolve(entry.name)
                     if (entry.isDirectory) {
-                        if (!entryFile.mkdirs()) {
-                            throw RuntimeException("Failed to create $entryFile")
-                        }
+                        entryFile.mkdirs()
                     } else {
+                        entryFile.parentFile?.mkdirs()
                         FileOutputStream(entryFile).use { fos ->
                             val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                             while (true) {
@@ -160,10 +191,9 @@ object Konan {
             while (entry != null) {
                 val entryFile = dest.resolve(entry.name)
                 if (entry.isDirectory) {
-                    if (!entryFile.mkdirs()) {
-                        throw RuntimeException("Failed to create $entryFile")
-                    }
+                    entryFile.mkdirs()
                 } else {
+                    entryFile.parentFile?.mkdirs()
                     FileOutputStream(entryFile).use { fos ->
                         val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                         while (true) {
