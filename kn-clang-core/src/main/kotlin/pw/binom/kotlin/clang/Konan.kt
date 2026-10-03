@@ -1,6 +1,8 @@
 package pw.binom.kotlin.clang
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -11,7 +13,10 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URI
-import java.util.zip.ZipInputStream
+import java.nio.file.Files
+import java.nio.file.attribute.PosixFilePermission
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 
 interface KonanVersion {
     fun getTargetInfo(target: KonanTarget): TargetInfo =
@@ -158,6 +163,27 @@ object Konan {
         }
     }
 
+    internal fun tarGzOfFiles(vararg names: String): InputStream {
+        val bytes = java.io.ByteArrayOutputStream()
+        org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream(bytes).use { gzip ->
+            TarArchiveOutputStream(gzip).use { tar ->
+                names.forEach { name ->
+                    val entry = TarArchiveEntry(name)
+                    entry.size = 1
+                    entry.mode = if (name.substringAfterLast('/').startsWith("kotlinc-native") || name.endsWith(".sh")) {
+                        0b111_101_101
+                    } else {
+                        0b110_100_100
+                    }
+                    tar.putArchiveEntry(entry)
+                    tar.write('x'.code)
+                    tar.closeArchiveEntry()
+                }
+            }
+        }
+        return bytes.toByteArray().inputStream()
+    }
+
     fun unpackTargz(stream: InputStream, dest: File) {
         GzipCompressorInputStream(stream).use { gzip ->
             TarArchiveInputStream(gzip).use { tar ->
@@ -178,6 +204,7 @@ object Konan {
                                 fos.write(buffer, 0, len)
                             }
                         }
+                        applyEntryMode(entryFile, (entry as TarArchiveEntry).mode)
                     }
                     entry = tar.nextEntry
                 }
@@ -186,7 +213,7 @@ object Konan {
     }
 
     fun unpackZip(stream: InputStream, dest: File) {
-        ZipInputStream(stream).use { zip ->
+        ZipArchiveInputStream(stream).use { zip ->
             var entry = zip.nextEntry
             while (entry != null) {
                 val entryFile = dest.resolve(entry.name)
@@ -204,9 +231,32 @@ object Konan {
                             fos.write(buffer, 0, len)
                         }
                     }
+                    applyEntryMode(entryFile, (entry as ZipArchiveEntry).unixMode)
                 }
                 entry = zip.nextEntry
             }
         }
+    }
+
+    /**
+     * Restores the POSIX permission bits declared by an archive entry.
+     * Without this the Kotlin/Native toolchain lands as `0644` and
+     * `kotlinc-native`, `konanc`, `run_konan`, the clang binaries, … are not
+     * executable — `checkSysrootInstalled` then fails with "Can't execute konan".
+     */
+    private fun applyEntryMode(file: File, mode: Int) {
+        if (mode == 0) return
+        val perms = buildSet {
+            if (mode and 0b100_000_000 != 0) add(PosixFilePermission.OWNER_READ)
+            if (mode and 0b010_000_000 != 0) add(PosixFilePermission.OWNER_WRITE)
+            if (mode and 0b001_000_000 != 0) add(PosixFilePermission.OWNER_EXECUTE)
+            if (mode and 0b000_100_000 != 0) add(PosixFilePermission.GROUP_READ)
+            if (mode and 0b000_010_000 != 0) add(PosixFilePermission.GROUP_WRITE)
+            if (mode and 0b000_001_000 != 0) add(PosixFilePermission.GROUP_EXECUTE)
+            if (mode and 0b000_000_100 != 0) add(PosixFilePermission.OTHERS_READ)
+            if (mode and 0b000_000_010 != 0) add(PosixFilePermission.OTHERS_WRITE)
+            if (mode and 0b000_000_001 != 0) add(PosixFilePermission.OTHERS_EXECUTE)
+        }
+        runCatching { Files.setPosixFilePermissions(file.toPath(), perms) }
     }
 }

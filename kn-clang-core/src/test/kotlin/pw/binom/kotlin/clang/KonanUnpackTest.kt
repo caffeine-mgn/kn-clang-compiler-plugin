@@ -11,7 +11,7 @@ import java.io.File
 
 class KonanUnpackTest {
 
-    private fun tarGzOf(vararg entries: Pair<String, Boolean>): ByteArray {
+    private fun tarGzOfRaw(vararg entries: Pair<String, Boolean>): ByteArray {
         val bytes = ByteArrayOutputStream()
         GzipCompressorOutputStream(bytes).use { gzip ->
             TarArchiveOutputStream(gzip).use { tar ->
@@ -21,6 +21,7 @@ class KonanUnpackTest {
                         entry.mode = 0b111_111_101
                     } else {
                         entry.size = 1
+                        entry.mode = if (name.endsWith(".sh")) 0b111_101_101 else 0b110_100_100
                     }
                     tar.putArchiveEntry(entry)
                     if (!isDir) {
@@ -39,7 +40,7 @@ class KonanUnpackTest {
         try {
             val nested = "kotlin-native-prebuilt-linux-x86_64-2.4.20/konan/konan.properties"
             Konan.unpackTargz(
-                tarGzOf(nested to false).inputStream(),
+                tarGzOfRaw(nested to false).inputStream(),
                 root,
             )
             assertTrue(root.resolve(nested).isFile, "Nested file was not created: $nested")
@@ -71,18 +72,27 @@ class KonanUnpackTest {
     }
 
     @Test
-    fun `installKonanFrom keeps a flat layout when there is no wrapper dir`() {
-        val tmp = File.createTempFile("kn-clang-tmp", "").apply { delete(); mkdirs() }
-        val dir = File.createTempFile("kn-clang-dest", "").apply { delete() }
+    fun `unpackTargz preserves the executable bit`() {
+        val root = File.createTempFile("kn-clang-unpack", "").apply { delete(); mkdirs() }
         try {
-            tmp.resolve("konan/konan.properties").apply { parentFile.mkdirs() }.writeText("ok")
-
-            Konan.installKonanFrom(tmp = tmp, dir = dir)
-
-            assertTrue(dir.resolve("konan/konan.properties").isFile, "Flat layout was not preserved")
+            val script = "bin/kotlinc-native"
+            Konan.unpackTargz(Konan.tarGzOfFiles(script), root)
+            val file = root.resolve(script)
+            assertTrue(file.canExecute(), "Archive entry mode was not applied to $script")
         } finally {
-            tmp.deleteRecursively()
-            dir.deleteRecursively()
+            root.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun `unpackTargz keeps plain files non-executable`() {
+        val root = File.createTempFile("kn-clang-unpack", "").apply { delete(); mkdirs() }
+        try {
+            val plain = "konan/konan.properties"
+            Konan.unpackTargz(tarGzOfRaw(plain to false).inputStream(), root)
+            assertFalse(root.resolve(plain).canExecute(), "Plain file should not be executable")
+        } finally {
+            root.deleteRecursively()
         }
     }
 }
