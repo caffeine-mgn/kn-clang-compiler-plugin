@@ -1,8 +1,27 @@
 package pw.binom.kotlin.clang.konan
 
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 private const val IOS_VERSION="14.0"
 private const val WATCHOS_VERSION="7.0"
+
+/**
+ * Subdirectory of `<jdk>/include/` that holds the per-platform `jni_md.h` for
+ * this Kotlin/Native target. Used by `JdkIncludeResolver` to wire the JVM
+ * JNI include path automatically — see `clangBuildJni` in the `kn-clang` module.
+ *
+ * Linux and Android share the Linux JNI headers (OpenJDK ships one
+ * `jni_md.h` per ABI, not per API); Apple targets use the darwin headers,
+ * and MinGW uses the Win32 headers.
+ */
+val KonanTarget.jdkIncludePlatform: String
+    get() = when (family) {
+        Family.LINUX, Family.ANDROID -> "linux"
+        Family.OSX -> "darwin"
+        Family.MINGW -> "win32"
+        else -> "linux"
+    }
+
 val KonanTarget.clangTarget
     get()=when(this){
         KonanTarget.ANDROID_ARM32 -> "arm-unknown-linux-androideabi"

@@ -51,6 +51,7 @@ fun Project.clangBuildDynamic(
     target: KonanTarget = HostManager.host,
     name: String = "native",
     taskName: String = "buildDynamic${name.replaceFirstChar { c -> c.uppercase() }}${target.presetName.replaceFirstChar { c -> c.uppercase() }}",
+    useLibPrefix: Boolean = false,
     config: BuildDynamicTask.() -> Unit
 ): BuildDynamicTask {
     val task = tasks.register(taskName, BuildDynamicTask::class.java).get()
@@ -71,12 +72,13 @@ fun Project.clangBuildDynamic(
         Family.WATCHOS -> "dylib"
         Family.MINGW -> "dll"
     }
+    val baseName = if (useLibPrefix) "lib$name" else name
     task.dynamicFile.set(
         layout.buildDirectory.get().asFile.resolve("native")
             .resolve(name)
             .resolve(target.name)
             .resolve("dynamic")
-            .resolve("$name.$ext")
+            .resolve("$baseName.$ext")
     )
     task.onlyIf { TargetSupport.isKonanTargetEnabledOnHost(target) }
     task.config()
